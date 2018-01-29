@@ -1,0 +1,108 @@
+--------------------------------------Orders--------------------------
+Add order details
+	API - /api/place_order
+	Method - POST
+	Request - 
+{
+	"vendor_name": "vender",
+"vendor_address": "vendor address address",
+"vendor_city":"Banglore",
+"vendor_pin_code":590014,
+"vendor_pan":"12qww232w2",
+"vendor_gst":"3232d3223ed",
+"vendor_contact":9019802163,
+"vendor_po":"323d32323d",
+"vendor_po_date":"2018-01-01",
+"orders":[
+	{
+		"Item_code":"12q22wqs",
+"hsn_sac_code": "sxww223ww",
+"item_name": "item item",
+"description":"item is a item of item",
+"uom": "dsce332",
+"qty":4,
+"rate":500,
+"discount_amount":30,
+"total_amount":20
+	}
+	]
+}
+	Response - 
+		{
+    "message": "Order Placed Successfully"
+}
+2. Get All Orders 
+	API - /api/place_order
+	Method - GET
+	Response -
+[
+    {
+        "vendor_name": "vender",
+        "vendor_address": "vendor address address",
+        "vendor_city": "Banglore",
+        "vendor_pin_code": 590014,
+        "vendor_pan": "12qww232w2",
+        "vendor_gst": "3232d3223ed",
+        "vendor_contact": 9019802163,
+        "vendor_po": "323d32323d",
+        "vendor_po_date": "2018-01-01",
+        "created_on": "2018-01-05T11:25:44.520535Z",
+        "comfirmed": false,
+        "vendor_order": [
+            {
+                "id": 3,
+                "item_code": "12q22wqs",
+                "hsn_sac_code": "sxww223ww",
+                "item_name": "item item",
+                "description": "item is a item of item",
+                "uom": "dsce332",
+                "qty": 4,
+                "rate": 500,
+                "discount_amount": 30,
+                "total_amount": 20,
+                "vendor": 2
+            }
+        ]
+    }
+]
+		
+3. Vendor Individual
+	API -  /api/vendor/<id>
+	Method - GET
+	Response - 
+		{
+    "vendor_name": "vender",
+    "vendor_address": "vendor address address",
+    "vendor_city": "Banglore",
+    "vendor_pin_code": 590014,
+    "vendor_pan": "12qww232w2",
+    "vendor_gst": "3232d3223ed",
+    "vendor_contact": 9019802163,
+    "vendor_po": "323d32323d",
+    "vendor_po_date": "2018-01-01",
+    "created_on": "2018-01-05T11:25:44.520535Z",
+    "comfirmed": false,
+    "vendor_order": [
+        {
+            "id": 3,
+            "item_code": "12q22wqs",
+            "hsn_sac_code": "sxww223ww",
+            "item_name": "item item",
+            "description": "item is a item of item",
+            "uom": "dsce332",
+            "qty": 4,
+            "rate": 500,
+            "discount_amount": 30,
+            "total_amount": 20,
+            "vendor": 2
+        }
+    ]
+}
+-----------------------------------------------------------------------------
+4. Delete Vendor
+	API - /api/vendor/<id>
+	Method - Delete
+	Response - 
+		{
+			“message”:”Vendor Deleted SuccessFully”
+		}
