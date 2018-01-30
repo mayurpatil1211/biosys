@@ -35,6 +35,15 @@ class FoodCategorySerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
+class AdditionalBillSerializer(serializers.ModelSerializer):
+	# total = serializers.FloatField(required=False)
+	attachment = serializers.FileField(required=False)
+	class Meta:
+		model = AdditionalBill
+		fields = '__all__'
+
+
+
 class BookingSerializer(serializers.ModelSerializer):
 	customer_name = serializers.CharField(required=False, allow_blank=True)
 	adults = serializers.IntegerField(required=False)
@@ -54,13 +63,25 @@ class BookingSerializer(serializers.ModelSerializer):
 		model = Booking
 		fields = '__all__'
 
+class BookingGetSerializer(serializers.ModelSerializer):
+	additional_bill = AdditionalBillSerializer(many=True)
 
-class AdditionalBillSerializer(serializers.ModelSerializer):
-	# total = serializers.FloatField(required=False)
-	attachment = serializers.FileField(required=False)
 	class Meta:
-		model = AdditionalBill
-		fields = '__all__'
+		model = Booking
+		fields = [
+					'id', 
+					'customer_name', 
+					'adults',
+					'child',
+					'address',
+					'email',
+					'id_proof',
+					'token_amount',
+					'pincode',
+					'additional_bill'
+					]
+
+
 
 class BillingSerializer(serializers.ModelSerializer):
 	class Meta:

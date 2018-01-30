@@ -164,7 +164,7 @@ class BookingView(APIView):
 	def get(self, request, format=None):
 		bookings = Booking.objects.filter(status=True).all()
 		print(bookings)
-		serializers = BookingSerializer(bookings, many=True)
+		serializers = BookingGetSerializer(bookings, many=True)
 		return Response(serializers.data)
 
 	def put(self, request, format=None):
