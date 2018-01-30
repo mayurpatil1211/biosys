@@ -355,6 +355,20 @@ class OrderedItems(models.Model):
 
 
 #####------------------HR Payrole------------------#####
+
+class BankDetails(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_bank')
+    bank_name = models.CharField(max_length=100)
+    ifsc_code = models.CharField(max_length=50)
+    account_type = models.CharField(max_length=20)
+    bank_address = models.CharField(max_length=200)
+    phone_no = models.CharField(max_length=13, null=True, blank=True)
+    bmicr_code = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return self.user.first_name+' '+self.bank_name
+
+
 class Salary(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_salary')
     basic = models.FloatField()

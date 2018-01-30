@@ -162,7 +162,8 @@ class BookingView(APIView):
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
 	def get(self, request, format=None):
-		bookings = Booking.objects.filter(status=True)
+		bookings = Booking.objects.filter(status=True).all()
+		print(bookings)
 		serializers = BookingSerializer(bookings, many=True)
 		return Response(serializers.data)
 

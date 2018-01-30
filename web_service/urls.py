@@ -9,7 +9,19 @@ urlpatterns=[
 	url(r'^attendance/', views.AttendanceCreate.as_view()),
 
 	###########Salary################
+	url(r'^salary/(?P<user>[0-9]+)$', views.SalaryIndividual.as_view(), name='individual_salary'),
 	url(r'^salary', views.SalaryView.as_view(), name='salary'),
+
+
+	###########Bank Details###########
+	url(r'^bank_details/(?P<user>[0-9]+)', views.BankDetailsIndividual.as_view(), name='individual_bank_details'),
+	url(r'^bank_details', views.BankDetailsView.as_view(), name='bank_details'),
+
+
+	###########HR API for user details#######
+	url(r'^hr/user_list/all$', views.HrUserListView.as_view(), name='user_list_hr'),
+	url(r'^hr/user_details/(?P<user>[0-9]+)', views.HrUsersDetailsView.as_view(), name='user_details_hr'),
+
 
 	url(r'^activity/(?P<activity_id>[0-9]+)/$', views.DeleteActivity.as_view(), name='delete_activity'),
 	url(r'^activity/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$',views.ActivityGetList.as_view()),

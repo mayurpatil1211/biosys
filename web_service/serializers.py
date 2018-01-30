@@ -717,7 +717,17 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
 class HrUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'role']
+        fields = ['id', 'first_name', 'last_name', 'username', 'user_role']
+
+
+##########----------------------Bank Details----------###############
+
+class BankDetailsSerializer(serializers.ModelSerializer):
+    phone_no = serializers.CharField(required=False, allow_blank=True)
+    bmicr_code = serializers.CharField(required=False, allow_blank=True)
+    class Meta:
+        model = BankDetails
+        fields = '__all__'
 
 
 
@@ -726,3 +736,14 @@ class SalarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Salary
         fields = '__all__'
+
+
+
+class HrUserDetailSerializer(serializers.ModelSerializer):
+    employee_salary = SalarySerializer(many=False)
+    employee_bank = BankDetailsSerializer(many=False)
+    user_role = RoleSerializer(many=False)
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'employee_salary', 'employee_bank', 'user_role']
+

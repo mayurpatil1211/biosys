@@ -1406,7 +1406,7 @@ class EmployeeDocumentIndividual(APIView):
 ##############-------------------------HR Payrole----------------------####################
 
 
-class HrUserView(APIView):
+class HrUserListView(APIView):
     def get(self, request, format=None):
         if request.user.user_role.department == 'HR':
             employees = Role.objects.all()
@@ -1414,6 +1414,18 @@ class HrUserView(APIView):
             users = User.objects.filter(id__in=user_ids)
             serializer = HrUserSerializer(users, many=True)
             return Response(serializer.data)
+        return JsonResponse({'message':'Unauthorised user'}, status=401)
+
+class HrUsersDetailsView(APIView):
+    def get(self, request, user, format=None):
+        print(user)
+        if request.user.user_role.department == 'HR':
+            user_obj = User.objects.filter(id=user)
+            serializer = HrUserDetailSerializer(user_obj)
+            print(serializer)
+            return Response(serializer.data)
+        return JsonResponse({'message':'Unauthorised user'}, status=401)
+            
 
 class SalaryView(APIView):
     def post(self, request, format=None):
@@ -1450,6 +1462,65 @@ class SalaryView(APIView):
                 return JsonResponse({'message':'Salary Deleted Successfully'}, status=200)
             return JsonResponse({'message':'Not Found'}, status=400)
         return JsonResponse({'message':'Bad String'}, status=400)
+
+
+class SalaryIndividual(APIView):
+    def get(self, request, user):
+        salary = Salary.objects.get(user=user)
+        serializer = SalarySerializer(salary)
+        return Response(serializer.data)
+
+
+############------------Bank Details-----------------################
+class BankDetailsView(APIView):
+    def post(self, request):
+        if request.data:
+            serializer = BankDetailsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({'message':'Bank Details Of Employee Added Successfully'}, status=201)
+            return JsonResponse({'message':'Bad String'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def get(self, request):
+        bankDetails = BankDetails.objects.all()
+        serializer = BankDetailsSerializer(bankDetails, many=True)
+        return Response(serializer.data)
+
+    def put(self, request):
+        if request.data:
+            try:
+                _id = request.data['id']
+            except(KeyError)as e:
+                return JsonResponse({'message':'Unique Id Required'}, status=400)
+            bankDetails = BankDetails.objects.get(id=_id)
+            serializer = BankDetailsSerializer(bankDetails, data=request.data)
+            print(serializer)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({'message':'Bank Details Updated Successfully'}, status=200)
+            return Response(serializer.errors)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def delete(self, request):
+        if request.data:
+            try:
+                _id = request.data['id']
+            except(KeyError)as e:
+                return  JsonResponse({'message':'Unique Id Required'}, status=400)
+            bankDetails = BankDetails.objects.get(id=_id)
+            if bankDetails:
+                bankDetails.delete()
+                return JsonResponse({'message':'Bank Details Deleted Successfully'}, status=200)
+            return JsonResponse({'message':'Not Found'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+class BankDetailsIndividual(APIView):
+    def get(self, request, user):
+        bankDetails = BankDetails.objects.get(user = user)
+        serializer = BankDetailsSerializer(bankDetails)
+        return Response(serializer.data)
+
 
 
 #############----------------Salary Request-------------##################
