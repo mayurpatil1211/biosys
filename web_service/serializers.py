@@ -143,7 +143,7 @@ class AppliedLeaveListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AppliedLeave
-        fields = ['id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn']
+        fields = ['id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn', 'actionOn']
 
 
 class HolidaySerializer(serializers.ModelSerializer):
@@ -187,7 +187,7 @@ class LeavesSerializer(serializers.ModelSerializer):
 class BalanceLeaveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Leaves
-        fields = ('id', 'balance_sick_leave', 'total_sick_leave', 'balance_casual_leave', 'total_casual_leave', 'balance_earned_leave', 'total_earned_leave', 'balance_compoff_leave', 'total_compoff_leave', 'lop')
+        fields = ('id', 'balance_sick_leave', 'total_sick_leave', 'balance_casual_leave', 'total_casual_leave', 'balance_earned_leave', 'total_earned_leave', 'balance_compoff_leave', 'total_compoff_leave')
 
 
 # class ManagerLeaveViewSerializer(serializers.ModelSerializer):
@@ -712,6 +712,32 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
     #                 FarmerCropType.objects.create(farmer=instance, **item)
     #     return instance
 
+
+
+##########--------------Add New Employee to the organization------------#########
+class AddNewEmployeeSerializer(serializers.ModelSerializer):
+    phone_no = serializers.CharField(required=False, allow_blank=True)
+    email = serializers.EmailField(required=False, allow_blank=True)
+    address = serializers.CharField(required=False, allow_blank=True)
+    city = serializers.CharField(required=False, allow_blank=True)
+    pincode = serializers.IntegerField(required=False)
+    father_name = serializers.CharField(required=False, allow_blank=True)
+    mother_name = serializers.CharField(required=False, allow_blank=True)
+    pan_card = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = Employees
+        fields = [
+            'user',
+            'phone_no',
+            'email',
+            'address',
+            'city',
+            'pincode',
+            'father_name',
+            'mother_name',
+            'pan_card'
+        ]
 ##########-------------------------HR Payrole-----------##############
 
 class HrUserSerializer(serializers.ModelSerializer):
@@ -745,5 +771,44 @@ class HrUserDetailSerializer(serializers.ModelSerializer):
     user_role = RoleSerializer(many=False)
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'employee_salary', 'employee_bank', 'user_role']
+        fields = ['id', 'first_name', 'last_name', 'username', 'email', 'employee_salary', 'employee_bank', 'user_role']
 
+#########------------Approve Employee serializer--------############
+class ApproveEmployeeDetails(serializers.ModelSerializer):
+    class Meta:
+        model = Employees
+        fields = '__all__'
+
+
+class ApproveEmployeesSerializer(serializers.ModelSerializer):
+    user_role = RoleSerializer(many=False)
+    employee_other_details = ApproveEmployeeDetails()
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'user_role',
+            'employee_other_details'
+        ]
+
+######---------------Requested Salaries-----------##############
+class SalaryRequestedUserSerializer(serializers.ModelSerializer):
+    employee_bank = BankDetailsSerializer(many=False)
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'username', 'email', 'employee_bank']
+
+class SalaryRequestedSerializer(serializers.ModelSerializer):
+    user = SalaryRequestedUserSerializer(many=False)
+    class Meta:
+        model=SalaryRequest
+        fields = '__all__'
+
+class SalaryRequestPutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SalaryRequest
+        fields = '__all__'

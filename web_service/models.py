@@ -26,6 +26,29 @@ class Role(models.Model):
     role_type = models.CharField(max_length=20)
     department = models.CharField(max_length=20)
 
+
+
+
+class Employees(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_other_details')
+    phone_no = models.CharField(max_length=13, null=True, blank=True)
+    email = models.CharField(max_length=200, null=True, blank=True)
+    address = models.CharField(max_length=200, null=True, blank=True)
+    city = models.CharField(max_length=50, null=True, blank=True)
+    pincode = models.IntegerField(null=True)
+    father_name = models.CharField(max_length=50, null=True, blank=True)
+    mother_name = models.CharField(max_length=50, null=True, blank=True)
+    pan_card = models.CharField(max_length=100,  null=True, blank=True)
+    approved = models.BooleanField(default=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    approved_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.first_name+' '+self.user.last_name
+
+
+
+
 class EmployeeDocument(models.Model):
     user = models.ForeignKey(User, related_name='user_document', on_delete=models.CASCADE)
     document_name = models.CharField(max_length=100, null=True, blank=True)
@@ -48,11 +71,6 @@ class Attendance(models.Model):
     clock_in = models.DateTimeField(null=True)
     clock_out = models.DateTimeField(null=True, blank=True)
     status = models.BooleanField(default=False)
-
-class Attendance(models.Model):
-    user = models.ForeignKey(User, related_name='user_attendance', on_delete=models.CASCADE)
-    clock_in = models.DateTimeField(null=True)
-    clock_out = models.DateTimeField(null=True, blank=True)
 
 
 class Activity(models.Model):
@@ -113,6 +131,7 @@ class EmployeeLop(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     appliedOn = models.DateField(auto_now_add=True)
     count = models.IntegerField()
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return self.user.first_name
@@ -408,6 +427,8 @@ class SalaryRequest(models.Model):
     net_salary = models.FloatField(null=True)
     net_salary_paybale = models.FloatField(null=True)
     created_on = models.DateTimeField(auto_now_add=True)
+    credited = models.BooleanField(default=False)
+    credited_on = models.DateTimeField(null=True)
 
     # @property
     # def calculate_net_salary(self):
@@ -426,3 +447,4 @@ class SalaryRequest(models.Model):
         # self.deduction = self.calculate_deduction
         self.net_salary_paybale = self.net_salary-self.deduction
         super(SalaryRequest, self).save(*args, **kwarg)
+

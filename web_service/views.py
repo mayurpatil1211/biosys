@@ -5,6 +5,8 @@ from .serializers import *
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
@@ -69,6 +71,84 @@ def register(request):
 
 
 
+########----Add new employee to the Organization-----########
+class AddEmployeeView(APIView):
+    def post(self, request):
+        if request.data:
+            email = request.data.get('email', None)
+            first_name = request.data.get('first_name', None)
+            last_name = request.data.get('last_name', None)
+            role = request.data.get('designation', None)
+            department = request.data.get('department', None)
+            phone_number = request.data.get('phone_no', None)
+            if email:
+                user = User.objects.filter(Q(username=email) | Q(email=email)).first()
+                print(user)
+                if user is None:
+                    user_save = User(
+                        first_name = first_name,
+                        last_name = last_name,
+                        username = email
+                        )
+                    user_save.save()
+                    user_role = Role(
+                        user = user_save,
+                        role_type = role,
+                        department = department
+                        )
+                    user_role.save()
+                    request.data["user"] = user_save.id
+                    print(request.data)
+                    if user_save:
+                        try:
+                            serializer = AddNewEmployeeSerializer(data=request.data)
+                            print('serializer', serializer)
+                            if serializer.is_valid():
+                                serializer.save()
+                                return JsonResponse({'message':'User Added Successfully'}, status=200)
+                        except(Exception)as e:
+                            print('Exception',e)
+                            user_save.delete()
+                            user_role.delete()
+                            pass
+                        return JsonResponse({'message':'Bad String'}, status=400)
+                    return JsonResponse({'message':'User Cannot be created, as details are not sufficient'}, status=400)
+                return JsonResponse({'message':'User Already Exists'}, status=400)
+            return JsonResponse({'message':'Email field is neccessory'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+            
+
+#######-----Approve New Employee----------###########
+class ApproveEmployee(APIView):
+    def get(self, request):
+        employees = Employees.objects.filter(approved=False)
+        employee_ids = [i.user.id for i in employees]
+        print(employee_ids)
+        users = User.objects.filter(id__in=employee_ids)
+        print(users)
+        serializer = ApproveEmployeesSerializer(users, many=True)
+        print(serializer.data)
+        return Response(serializer.data)
+
+    def post(self, request):
+        _id = request.data.get('id', None)
+        employee = Employees.objects.filter(user=_id).first()
+        if employee:
+            employee.approved = True
+            employee.save()
+            user_obj = User.objects.filter(id=employee.user.id).first()
+            password = request.data.get('password', None)
+            if password:
+                user_obj.set_password(password)
+            else:
+                user_obj.set_password('dscignBiosys')
+            user_obj.save()
+            return JsonResponse({'message':'User activated, and password has set for the user account'}, status=200)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+
+#######-----Add New Employee Ends---------############
+
 class AttendanceCreate(APIView):
     def put(self, request):
         user = request.user
@@ -94,15 +174,18 @@ class ActivityAddList(APIView):
             return JsonResponse({"message": "bad string"}, status=400)
 
     def put(self, request):
-        activity = Activity.objects.get(id=request.data['id'])
-        serializer = UpadteActivitySerializer(activity, data=request.data)
-        print(serializer)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse({"message": 'Success'}, status=200)
-        else:
-            print (serializer.errors)
-            return JsonResponse({"message": "bad string"}, status=400)
+        
+        try:
+            activity = Activity.objects.get(id=request.data['id'])
+            serializer = UpadteActivitySerializer(activity, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"message": 'Success'}, status=200)
+            else:
+                print (serializer.errors)
+                return JsonResponse({"message": "bad string"}, status=400)
+        except(ObjectDoesNotExist)as e:
+            return JsonResponse({'message':'Requested Activity Does Not Exist'}, status=400)
 
     def get(self, request):
         if request.user.user_role.role_type == 'Employee':
@@ -201,14 +284,17 @@ class ExpenseAddList(APIView):
             return JsonResponse({"message": "bad string"}, status=400)
 
     def put(self, request):
-        expense = Expense.objects.get(id=request.data['id'])
-        serializer = ExpenseSerializer(expense, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse({"message": "success"}, status=200)
-        else:
-            print(serializer.errors)
-            return JsonResponse({"message": "bad string"}, status=400)
+        try:
+            expense = Expense.objects.get(id=request.data['id'])
+            serializer = ExpenseSerializer(expense, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"message": "success"}, status=200)
+            else:
+                print(serializer.errors)
+                return JsonResponse({"message": "bad string"}, status=400)
+        except(ObjectDoesNotExist)as e:
+            return JsonResponse({'message':'Requested expense Does Not Exist'}, status=400)
 
     def delete(self, request):
         try:
@@ -1377,23 +1463,29 @@ class EmployeeDocumentView(APIView):
 
     def put(self, request):
         if request.data:
-            document = EmployeeDocument.objects.get(id = request.data['id'])
-            if document:
-                serializer = EmployeeDocumentSerializer(document, data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return JsonResponse({'message':'Document Updated Successfully'}, status=200)
-                return JsonResponse({'message':'Bad String'}, status=400)
-            return JsonResponse({'message':'Not Found'}, status=400)
+            try:
+                document = EmployeeDocument.objects.get(id = request.data['id'])
+                if document:
+                    serializer = EmployeeDocumentSerializer(document, data=request.data)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return JsonResponse({'message':'Document Updated Successfully'}, status=200)
+                    return JsonResponse({'message':'Bad String'}, status=400)
+                return JsonResponse({'message':'Not Found'}, status=400)
+            except(ObjectDoesNotExist)as e:
+                return JsonResponse({'message':'Requested Document details Does Not Exist'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
 
     def delete(self, request):
         if request.data:
-            document = EmployeeDocument.objects.get(id = request.data['id'])
-            if document:
-                document.delete()
-                return JsonResponse({'message': 'Document Deleted Successfully'}, status=400)
-            return JsonResponse({'message':'Not Found'}, status=400)
+            try:
+                document = EmployeeDocument.objects.get(id = request.data['id'])
+                if document:
+                    document.delete()
+                    return JsonResponse({'message': 'Document Deleted Successfully'}, status=400)
+                return JsonResponse({'message':'Not Found'}, status=400)
+            except(ObjectDoesNotExist)as e:
+                return JsonResponse({'message':'Request Document Does Not Exist'}, status=400)
         return JsonResponse({'message': 'Bad Request'}, status=400)
 
 
@@ -1523,12 +1615,80 @@ class BankDetailsIndividual(APIView):
 
 
 
+
+
 #############----------------Salary Request-------------##################
 @api_view(['POST'])
 def salary_request(request):
+    user_id = request.data.get('user', None)
+    month = request.data.get('month', None)
+    year = request.data.get('year', None)
+    if user_id:
+        salary_info = Salary.objects.filter(user=user_id).first()
+        calculate_lop = calculate_lop_f(user_id, month, year)
+        salary_of_one_day = float(salary_info.net_salary)/float(25)
+        lop_cost = float(calculate_lop)*float(salary_of_one_day)
+        salary_request=SalaryRequest(
+                user = salary_info.user,
+                basic = salary_info.basic,
+                hra = salary_info.hra,
+                conveyance_allowance = salary_info.conveyance_allowance,
+                deduction = lop_cost,
+                misc_allowance = salary_info.misc_allowance,
+                proffesional_tax = salary_info.proffesional_tax,
+                net_salary = salary_info.net_salary
+            )
+        salary_request.save()
+        return JsonResponse({'message':'Salary Requested'}, status=200)
+    return JsonResponse({'message':'Bad Request'}, status=400)
+
+
+def calculate_lop_f(user_id, month, year):
+    employee_lop = EmployeeLop.objects.filter(user=user_id, appliedOn__month=month, appliedOn__year=year, status=True).all()
+    print(employee_lop)
+    lop = 0
+    if employee_lop:
+        for e in employee_lop:
+            lop += e.count
+            e.status=False
+            e.save()
+        return lop
+    return lop
+
+######----------Credit Salary--------######
+class SalaryRequested(APIView):
+    def get(self, request):
+        salaries = SalaryRequest.objects.filter(credited=False).all()
+        serializer = SalaryRequestedSerializer(salaries, many=True)
+        return Response(serializer.data)
+
+    def put(self, request):
+        if request.data:
+            _id = request.data.get('id', None)
+            if _id:
+                requested_salary = SalaryRequest.objects.filter(id=_id).first()
+                serializer = SalaryRequestPutSerializer(requested_salary, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse({'message':'Requested Salary updated successfully'}, status=200)
+                return Response(serializer.errors)
+            return JsonResponse({'message':'Unique Id Required to identify requested salary'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+
+#######--------Salary Credited--------##########
+@api_view(['POST'])
+def salary_credited(request):
     if request.data:
-        salary_info = Salary.objects.filter(user=request.data['user'])
-        print(salary_info)
-        
-        return JsonResponse({'message':'Requested Salary'}, status=200)
+        _id = request.data.get('id', None)
+        user_id = request.data.get('user', None)
+        if _id and user_id:
+            salary = SalaryRequest.objects.filter(id= _id, user=user_id, credited=False).first()
+            if salary:
+                salary.credited_on = timezone.localtime(timezone.now())
+                salary.credited = True
+                salary.save()
+                return JsonResponse({'message':'Salary Request status changed to Creadited'}, status=200)
+            return JsonResponse({'message':'Not Found, Invalid data'}, status=400)
+        return JsonResponse({'message':'unique id and user id is neccessory'}, status=400)
     return JsonResponse({'message':'Bad Request'}, status=400)

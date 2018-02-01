@@ -28,7 +28,7 @@ class RoomTypeView(APIView):
 			if serializers.is_valid():
 				serializers.save()
 				return	JsonResponse({'message':'Room type saved Successfully'}, status=201)
-			return JsonResponse({'message': 'Bad String'}, status=400)
+			return Response(serializers.errors)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
 	def get(self, request, format=None):
@@ -43,12 +43,12 @@ class RoomTypeView(APIView):
 			except(KeyError)as e:
 				id = None
 
-			roomType = RoomTypes.objects.get(id = id)
+			roomType = RoomTypes.objects.filter(id = id).first()
 			serializers = RoomTypeSerializer(roomType, data=request.data)
 			if serializers.is_valid():
 				serializers.save()
 				return JsonResponse({'message':'Room type updated Successfully'}, status=200)
-			return JsonResponse({'message':'Bad String'}, status=400)
+			return Response(serializers.errors)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
 	def delete(self, request, format=None):
@@ -58,7 +58,7 @@ class RoomTypeView(APIView):
 			except(KeyError)as e:
 				id= None
 
-			roomType = RoomTypes.objects.get(id = id)
+			roomType = RoomTypes.objects.filter(id = id).first()
 			if roomType:
 				roomType.delete()
 				return JsonResponse({'message':'Room type deleted Successfully'}, status=200)
@@ -74,7 +74,7 @@ class FoodCategoryView(APIView):
 			if serializers.is_valid():
 				serializers.save()
 				return JsonResponse({'message':'Food Category Added Successfully'}, status=201)
-			return JsonResponse({'message':'Bad String'}, status=400)
+			return Response(serializers.errors)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
 	def get(self, request, format=None):
@@ -84,19 +84,19 @@ class FoodCategoryView(APIView):
 
 	def put(self, request, format=None):
 		if request.data:
-			food_category = FoodCategory.objects.get(id=request.data['id'])
+			food_category = FoodCategory.objects.filter(id=request.data['id']).first()
 			if food_category:
 				serializers = FoodCategorySerializer(food_category, data=request.data)
 				if serializers.is_valid():
 					serializers.save()
 					return JsonResponse({'message':'Food Category updated Successfully'}, status=200)
-				return JsonResponse({'message':'Bad String'}, status=400)
+				return Response(serializers.errors)
 			return JsonResponse({'message':'Not Found'}, status=400)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
 	def delete(self, request, format=None):
 		if request.data:
-			food_category = FoodCategory.objects.get(id=request.data['id'])
+			food_category = FoodCategory.objects.filter(id=request.data['id']).first()
 			if food_category:
 				food_category.delete()
 				return JsonResponse({'message':'Food Category Deleted Successfully'}, status=200)
@@ -115,7 +115,7 @@ class RoomView(APIView):
 					return JsonResponse({'message':'Room Saved Successfully'}, status=200)
 			except(KeyError)as e:
 				return JsonResponse({'message':'Invalid status, Please Select Status From given List'}, status=400)
-			return JsonResponse({"message":"Bad String"}, status=400)
+			return Response(serializers.errors)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
 	def get(self, request, format=None):
@@ -129,13 +129,13 @@ class RoomView(APIView):
 				id = request.data['id']
 			except(KeyError)as e:
 				id = None
-			room = Rooms.objects.get(id = id)
+			room = Rooms.objects.filter(id = id).first()
 			if room:
 			 	serializers = RoomSerializer(room, data=request.data)
 			 	if serializers.is_valid():
 			 		serializers.save()
 			 		return JsonResponse({'message':'Room details updated Successfully'}, status=200)
-			 	return JsonResponse({'message':'Bad String'}, status=400)
+			 	return Response(serializers.errors)
 			return JsonResponse({'message':'Room not Found'}, status=400)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
@@ -147,7 +147,7 @@ class BookingView(APIView):
 				room_id = request.data['room']
 			except(KeyError)as e:
 				room_id = None
-			room = Rooms.objects.get(id=room_id)
+			room = Rooms.objects.filter(id=room_id).first()
 			if room:
 				if room.status == Status.Available:
 					serializers = BookingSerializer(data=request.data)
@@ -156,7 +156,7 @@ class BookingView(APIView):
 						room.status = Status.Unavailable
 						room.save()
 						return JsonResponse({'message':'Room Booked Successfully'}, status=200)
-					return JsonResponse({'message':'Bad String'}, status=400)
+					return Response(serializers.errors)
 				return JsonResponse({'message':'Sorry, Room is '+ str(room.status) +' at this moment'}, status=400)
 			return JsonResponse({'message':'Sorry, Room Not Found'}, status=400)
 		return JsonResponse({'message':'Bad Request'}, status=400)
@@ -184,7 +184,7 @@ class BookingView(APIView):
 				if serializers.is_valid():
 					serializers.save()
 					return JsonResponse({'message':'Booking Details Updated Successfully'}, status=200)
-				return JsonResponse({'message':'Bad String'}, status=400)
+				return Response(serializers.errors)
 			return JsonResponse({'message':'Invalid, Booking Not Found'}, status=400)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
@@ -207,7 +207,7 @@ class AdditionalBillView(APIView):
 				if serializers.is_valid():
 					serializers.save()
 					return JsonResponse({'message':'Added bill of the Customer'}, status=200)
-				return JsonResponse({'message':'Bad String'}, status=400)
+				return Response(serializers.errors)
 			return JsonResponse({'message':'Not Found'}, status=400)
 		return JsonResponse({'message':'Bad Request'}, status=400)
 
@@ -224,13 +224,13 @@ class AdditionalBillView(APIView):
 				id = None
 
 			if id:
-				additional = AdditionalBill.objects.get(id=id)
+				additional = AdditionalBill.objects.filter(id=id).first()
 				if additional:
 					serializers = AdditionalBillSerializer(additional, data=request.data)
 					if serializers.is_valid():
 						serializers.save()
 						return JsonResponse({'message':'Customer Bill Updated'}, status=200)
-					return JsonResponse({'message':'Bad String'}, status=400)
+					return Response(serializers.errors)
 				return JsonResponse({'message':'Not Found'}, status=400)
 			return JsonResponse({'message': 'ID is reqired'}, status=400)
 		return JsonResponse({'message':'Bad Request'}, status=400)
@@ -243,7 +243,7 @@ class AdditionalBillView(APIView):
 				id = None
 
 			try:
-				additional = AdditionalBill.objects.get(id = id)
+				additional = AdditionalBill.objects.filter(id = id).first()
 			except(Exception)as e:
 				return JsonResponse({'message':'Requested Bill Does Not Exist'}, status=400)
 
@@ -267,7 +267,7 @@ def check_out(request):
 		except(KeyError)as e:
 			return JsonResponse({'message':'Please Tell Us which booking'}, status=400)
 
-		booking = Booking.objects.get(id=booking_id)
+		booking = Booking.objects.filter(id=booking_id).first()
 		if booking:
 			booking.check_out = timezone.localtime(timezone.now())
 			booking.status=False

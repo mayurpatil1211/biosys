@@ -8,9 +8,17 @@ urlpatterns=[
 	url(r'^logout/$', views.logout, name='logout'),
 	url(r'^attendance/', views.AttendanceCreate.as_view()),
 
+	url(r'^add_employee', views.AddEmployeeView.as_view(), name='add_employee'),
+
+	url(r'^approve_employee', views.ApproveEmployee.as_view(), name='approve_employee'),
+
 	###########Salary################
+	url(r'^salary_credited$', views.salary_credited, name='salary_credited'),
+	url(r'^salary_request$', views.salary_request, name='salary_request'),
+	url(r'^salary_requested$', views.SalaryRequested.as_view(), name='salary_requested'),
 	url(r'^salary/(?P<user>[0-9]+)$', views.SalaryIndividual.as_view(), name='individual_salary'),
 	url(r'^salary', views.SalaryView.as_view(), name='salary'),
+
 
 
 	###########Bank Details###########
