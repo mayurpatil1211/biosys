@@ -1546,7 +1546,7 @@ class SalaryView(APIView):
             return JsonResponse({'message':'Not Found'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
 
-    def delete(APIView):
+    def delete(self, request, format=None):
         if request.data:
             salary = Salary.objects.filter(user=request.data['user']).first()
             if salary:
