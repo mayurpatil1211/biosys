@@ -270,7 +270,7 @@ def check_out(request):
 		booking = Booking.objects.filter(id=booking_id).first()
 		if booking:
 			booking.check_out = timezone.localtime(timezone.now())
-			booking.status=False
+			booking.status=False #checkout flag
 			booking.room.status = Status.Available
 			print(booking.room.status)
 			booking.room.save()
