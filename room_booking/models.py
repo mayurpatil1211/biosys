@@ -46,10 +46,10 @@ class Booking(models.Model):
 	 mobile_number = models.CharField(max_length=13)
 	 email = models.EmailField(null=True, blank=True)
 	 id_proof = models.FileField(null=True, blank=True)
-	 adults = models.IntegerField(null=True)
-	 child = models.IntegerField(null=True)
+	 adults = models.IntegerField(default=0)
+	 child = models.IntegerField(default=0)
 	 check_in = models.DateTimeField(auto_now_add=True)
-	 token_amount = models.FloatField(null=True, blank=True)
+	 token_amount = models.FloatField(default=0)
 	 check_out = models.DateTimeField(null=True)
 	 number_of_days = models.IntegerField(null=True)
 	 address = models.CharField(max_length=200, null=True, blank=True)
@@ -71,10 +71,10 @@ class FoodCategory(models.Model):
 class AdditionalBill(models.Model):
 	booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='additional_bill')
 	items = models.CharField(max_length=100, null=True, blank=True)
-	qty = models.FloatField(null=True)
+	qty = models.FloatField(null=True, default=1)
 	category = models.CharField(max_length=20, null=True)
-	price = models.FloatField(null=True)
-	tax = models.FloatField(null=True)
+	price = models.FloatField(default=0)
+	tax = models.FloatField(default=0)
 	total = models.FloatField(null=True)
 	attachment = models.FileField(null=True)
 
@@ -99,11 +99,11 @@ class AdditionalBill(models.Model):
 
 class Billing(models.Model):
 	booking = models.OneToOneField(Booking, on_delete=models.SET_NULL, related_name='booking_bill', null=True)
-	additional_amount = models.FloatField(null=True)
-	room_price = models.FloatField(null=True)
-	tax = models.FloatField(null=True)
-	number_of_days = models.FloatField(null=True)
-	total_amount = models.FloatField(null=True)
+	additional_amount = models.FloatField(null=True, default=0)
+	room_price = models.FloatField(null=True, default=0)
+	tax = models.FloatField(null=True, default=0)
+	number_of_days = models.FloatField(null=True, default=0)
+	total_amount = models.FloatField(null=True, default=0)
 
 	@property
 	def calculate_bill(self):
