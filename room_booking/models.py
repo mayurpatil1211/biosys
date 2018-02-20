@@ -9,6 +9,10 @@ from django.conf import settings
 from enumchoicefield import ChoiceEnum, EnumChoiceField
 import uuid
 import datetime
+from datetime import date
+import time
+from datetime import datetime
+from time import gmtime, strftime
 import random
 import string
 
@@ -26,6 +30,8 @@ class Status(ChoiceEnum):
     Unavailable = "Unavailable"
     Available = "Available"
     Booked = "Booked"
+    Maintenance = "Maintenance"
+    Occupied = "Occupied"
 
 
 
@@ -48,7 +54,7 @@ class Booking(models.Model):
 	 id_proof = models.FileField(null=True, blank=True)
 	 adults = models.IntegerField(default=0)
 	 child = models.IntegerField(default=0)
-	 check_in = models.DateTimeField(auto_now_add=True)
+	 check_in = models.DateTimeField(null=True)
 	 token_amount = models.FloatField(default=0)
 	 check_out = models.DateTimeField(null=True)
 	 number_of_days = models.IntegerField(null=True)
@@ -56,6 +62,14 @@ class Booking(models.Model):
 	 city = models.CharField(max_length=50, blank=True, null=True)
 	 pincode = models.IntegerField(null=True)
 	 status = models.BooleanField(default=True)
+
+	 def save(self, *args, **kwargs):
+	 	if self.check_in is None:
+	 		self.check_in = timezone.localtime(timezone.now())
+	 		super(Booking, self).save(*args, **kwargs)
+	 	else:
+	 		pass
+
 
 	 def __str__(self):
 	 	return self.customer_name

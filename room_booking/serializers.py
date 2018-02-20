@@ -21,6 +21,14 @@ class RoomSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
+class RoomStatusSerializer(serializers.ModelSerializer):
+	room_number = serializers.CharField(required=False)
+	floor = serializers.IntegerField(required=False)
+
+	class Meta:
+		model = Rooms
+		fields = '__all__'
+
 class RoomGetSerializer(serializers.ModelSerializer):
 	room_type = RoomTypeSerializer(many=False)
 	status = EnumChoiceField(enum_class=Status)
@@ -50,6 +58,7 @@ class BookingSerializer(serializers.ModelSerializer):
 	child = serializers.IntegerField(required=False)
 	# booking_id = serializers.CharField(required=False)
 	address = serializers.CharField(required=False, allow_blank=True)
+	check_in = serializers.DateTimeField(required=False)
 	check_out = serializers.DateTimeField(required=False)
 	number_of_days = serializers.IntegerField(required=False)
 	email = serializers.EmailField(required=False, allow_blank=True)
