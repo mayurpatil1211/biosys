@@ -1,5 +1,4 @@
 import uuid
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -15,6 +14,7 @@ from datetime import datetime
 from time import gmtime, strftime
 import random
 import string
+from django.utils import timezone
 
 class RoomTypes(models.Model):
 	room_type = models.CharField(max_length=20)
@@ -32,8 +32,6 @@ class Status(ChoiceEnum):
     Booked = "Booked"
     Maintenance = "Maintenance"
     Occupied = "Occupied"
-
-
 
 class Rooms(models.Model):
 	room_number = models.CharField(max_length=10, unique=True)
@@ -54,21 +52,22 @@ class Booking(models.Model):
 	 id_proof = models.FileField(null=True, blank=True)
 	 adults = models.IntegerField(default=0)
 	 child = models.IntegerField(default=0)
-	 check_in = models.DateTimeField(null=True)
+	 check_in = models.DateField(null=True)
 	 token_amount = models.FloatField(default=0)
-	 check_out = models.DateTimeField(null=True)
+	 check_out = models.DateField(null=True)
 	 number_of_days = models.IntegerField(null=True)
 	 address = models.CharField(max_length=200, null=True, blank=True)
 	 city = models.CharField(max_length=50, blank=True, null=True)
 	 pincode = models.IntegerField(null=True)
 	 status = models.BooleanField(default=True)
+	 checked_in = models.BooleanField(default=False)
 
 	 def save(self, *args, **kwargs):
 	 	if self.check_in is None:
 	 		self.check_in = timezone.localtime(timezone.now())
 	 		super(Booking, self).save(*args, **kwargs)
 	 	else:
-	 		pass
+	 		super(Booking, self).save(*args, **kwargs)
 
 
 	 def __str__(self):

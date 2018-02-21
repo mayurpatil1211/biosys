@@ -116,6 +116,34 @@ class AddEmployeeView(APIView):
                 return JsonResponse({'message':'User Already Exists'}, status=400)
             return JsonResponse({'message':'Email field is neccessory'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def put(self, request):
+        if request.data:
+            id = request.data.get('id', None)
+            email = request.data.get('email', None)
+            first_name = request.data.get('first_name', None)
+            last_name = request.data.get('last_name', None)
+            role = request.data.get('designation', None)
+            department = request.data.get('department', None)
+            phone_number = request.data.get('phone_no', None)
+            if email:
+                user = User.objects.filter(id=id).first()
+                print(user)
+                if user:
+                    user.first_name = first_name
+                    user.last_name = last_name
+                    user.username = email
+                    user.save()
+                    user_role = Role.objects.filter(user=user).first()
+                    if user_role:
+                        user_role.role_type = role
+                        user_role.department = department
+                        user_role.save()
+                    return JsonResponse({'message':'User Updated Successfully'}, status=200) 
+                return JsonResponse({'message':'User Doesn\'t Exists'}, status=400)
+            return JsonResponse({'message':'Email field can\'t be blank'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
             
 
 #######-----Approve New Employee----------###########

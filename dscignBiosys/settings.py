@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
 
 DATE_INPUT_FORMATS = ['%Y-%m-%d']
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 MIDDLEWARE = [

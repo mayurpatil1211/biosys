@@ -206,8 +206,9 @@ class BookingView(APIView):
                 if room.status == Status.Available:
                     serializers = BookingSerializer(data=request.data)
                     if serializers.is_valid():
+                        print(serializers)
                         serializers.save()
-                        room.status = Status.Unavailable
+                        room.status = Status.Booked
                         room.save()
                         return JsonResponse({'message':'Room Booked Successfully'}, status=200)
                     return Response(serializers.errors)
@@ -216,7 +217,7 @@ class BookingView(APIView):
         return JsonResponse({'message':'Bad Request'}, status=400)
 
     def get(self, request, format=None):
-        bookings = Booking.objects.filter(status=True).all()
+        bookings = Booking.objects.filter(status=True, checked_in=False).all()
         print(bookings)
         serializers = BookingGetSerializer(bookings, many=True)
         return Response(serializers.data)
@@ -241,6 +242,49 @@ class BookingView(APIView):
                 return Response(serializers.errors)
             return JsonResponse({'message':'Invalid, Booking Not Found'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
+
+
+class CheckInAndBookView(APIView):
+    def post(self, request, format=None):
+        if request.data:
+            try:
+                room_id = request.data['room']
+            except(KeyError)as e:
+                room_id = None
+            room = Rooms.objects.filter(id=room_id).first()
+            if room:
+                if room.status == Status.Available:
+                    serializers = CheckInBookingSerializer(data=request.data)
+                    if serializers.is_valid():
+                        serializers.save()
+                        print(serializers)
+                        room.status = Status.Occupied
+                        room.save()
+                        return JsonResponse({'message':'Checked In Successfully'}, status=200)
+                    return Response(serializers.errors)
+                return JsonResponse({'message':'Sorry, Room is '+ str(room.status) +' at this moment'}, status=400)
+            return JsonResponse({'message':'Sorry, Room Not Found'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def get(self, request, format=None):
+        bookings = Booking.objects.filter(status=True, checked_in=True).all()
+        print(bookings)
+        serializers = BookingGetSerializer(bookings, many=True)
+        return Response(serializers.data)
+
+@api_view(['PUT'])
+def check_in_booked_customer(request):
+    if request.data:
+        try:
+            booking = Booking.objects.filter(id=request.data['booking_id'], checked_in=False).first()
+        except(Exception) as e:
+            return JsonResponse({'message':'Sorry this booking has already checked In'}, status=400)
+
+        if booking:
+            booking.checked_in = True
+            booking.save()
+            return JsonResponse({'message':'Customer Checked In Successfully'}, status=200)
+        return JsonResponse({'message':'May be this booking has already checked in or not Available'}, status=400)
 
 
 class AdditionalBillView(APIView):
@@ -321,7 +365,7 @@ def check_out(request):
         except(KeyError)as e:
             return JsonResponse({'message':'Please Tell Us which booking'}, status=400)
 
-        booking = Booking.objects.filter(id=booking_id).first()
+        booking = Booking.objects.filter(id=booking_id, checked_in=True).first()
         if booking:
             if booking.check_out is None:
                 booking.check_out = timezone.localtime(timezone.now())
@@ -342,7 +386,7 @@ def check_out(request):
             
             return Response(serializers.data)
             # return JsonResponse({'message':'Checked Out'}, status=200)
-        return JsonResponse({'message':'Booking Not Found'}, status=400)
+        return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
     return JsonResponse({'message':'Bad Request'}, status=400)
 
 def bill_on_checkout(booking_id):
@@ -372,6 +416,8 @@ def calculate_additional_bill(booking_id):
         total += bill.total
     print(total)
     return total
+
+
 #-----CheckOut Ends-------
 
 class BookingInfo(APIView):

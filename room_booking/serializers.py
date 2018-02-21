@@ -5,6 +5,12 @@ from django.conf import settings
 from collections import namedtuple
 from enumchoicefield import ChoiceEnum, EnumChoiceField
 from django.http import JsonResponse
+import datetime
+from datetime import date
+import time
+from datetime import datetime
+from time import gmtime, strftime
+from django.utils import timezone
 
 class RoomTypeSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -58,15 +64,41 @@ class BookingSerializer(serializers.ModelSerializer):
 	child = serializers.IntegerField(required=False)
 	# booking_id = serializers.CharField(required=False)
 	address = serializers.CharField(required=False, allow_blank=True)
-	check_in = serializers.DateTimeField(required=False)
-	check_out = serializers.DateTimeField(required=False)
+	check_in = serializers.DateField(required=False)
+	check_out = serializers.DateField(required=False)
 	number_of_days = serializers.IntegerField(required=False)
 	email = serializers.EmailField(required=False, allow_blank=True)
 	id_proof = serializers.FileField(required=False)
 	token_amount = serializers.FloatField(required=False)
 	pincode = serializers.IntegerField(required=False)
 	status = serializers.BooleanField(required=False, read_only=True)
+	checked_in = serializers.BooleanField(required=False, read_only=True)
 
+	
+	class Meta:
+		model = Booking
+		fields = '__all__'
+
+
+class CheckInBookingSerializer(serializers.ModelSerializer):
+	customer_name = serializers.CharField(required=False, allow_blank=True)
+	adults = serializers.IntegerField(required=False)
+	child = serializers.IntegerField(required=False)
+	# booking_id = serializers.CharField(required=False)
+	address = serializers.CharField(required=False, allow_blank=True)
+	check_in = serializers.DateField(required=False)
+	check_out = serializers.DateField(required=False)
+	number_of_days = serializers.IntegerField(required=False)
+	email = serializers.EmailField(required=False, allow_blank=True)
+	id_proof = serializers.FileField(required=False)
+	token_amount = serializers.FloatField(required=False)
+	pincode = serializers.IntegerField(required=False)
+	status = serializers.BooleanField(required=False, read_only=True)
+	checked_in = serializers.BooleanField(required=False)
+
+	def create(self, validated_data):
+		check_in_instance = Booking.objects.create(checked_in=True, **validated_data)
+		return check_in_instance
 	
 	class Meta:
 		model = Booking
@@ -102,8 +134,8 @@ class BookingBillingSerializer(serializers.ModelSerializer):
 	additional_bill = AdditionalBillSerializer(many=True)
 	booking_bill = BillingSerializer(required=False)
 
-	check_in = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-	check_out = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+	check_in = serializers.DateTimeField(format="%Y-%m-%d")
+	check_out = serializers.DateTimeField(format="%Y-%m-%d")
 
 	class Meta:
 		model = Booking
@@ -129,7 +161,7 @@ class BookingBillingSerializer(serializers.ModelSerializer):
 class BookingInfoSerializer(serializers.ModelSerializer):
 	additional_bill = AdditionalBillSerializer(many=True)
 	room = RoomGetSerializer()
-	check_in = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+	check_in = serializers.DateTimeField(format="%Y-%m-%d")
 
 	class Meta:
 		model = Booking
