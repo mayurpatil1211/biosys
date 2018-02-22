@@ -20,6 +20,7 @@ from collections import namedtuple
 import time
 from datetime import datetime
 from time import gmtime, strftime
+from django.core.mail import send_mail
 
 # Create your views here.
 
@@ -67,8 +68,18 @@ def register(request):
     	user_role.save()
     	return JsonResponse({'message': 'User registered successfully'}, status=201)
     return JsonResponse({'message': 'Username already Exists'})
-        
 
+
+########------------Forgot Password------------############
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def forgot_password(request):
+    user = User.objects.filter(username=request.data['username']).first()
+    print(user)
+    if user:
+        send_mail('subject', 'body of the message', 'mayur.patil1211@gmail.com', ['mayurbppatil@gmail.com'])
+        return JsonResponse({'message':'User Exists'}, status=200)
+    return JsonResponse({'message':'User not Exists'}, status=400)
 
 
 ########----Add new employee to the Organization-----########
@@ -128,19 +139,26 @@ class AddEmployeeView(APIView):
             phone_number = request.data.get('phone_no', None)
             if email:
                 user = User.objects.filter(id=id).first()
-                print(user)
-                if user:
-                    user.first_name = first_name
-                    user.last_name = last_name
-                    user.username = email
-                    user.save()
-                    user_role = Role.objects.filter(user=user).first()
-                    if user_role:
-                        user_role.role_type = role
-                        user_role.department = department
-                        user_role.save()
-                    return JsonResponse({'message':'User Updated Successfully'}, status=200) 
-                return JsonResponse({'message':'User Doesn\'t Exists'}, status=400)
+                try:
+                    if user:
+                        user.first_name = first_name
+                        user.last_name = last_name
+                        user.username = email
+                        user.save()
+                        user_role = Role.objects.filter(user=user).first()
+                        if user_role:
+                            user_role.role_type = role
+                            user_role.department = department
+                            user_role.save()
+                        emp_details = Employees.objects.filter(user=user).first()
+                        if emp_details:
+                            emp_details.phone_no = phone_number
+                            emp_details.email = email
+                            emp_details.save() 
+                        return JsonResponse({'message':'User Updated Successfully'}, status=200) 
+                    return JsonResponse({'message':'User Doesn\'t Exists'}, status=400)
+                except(Exception)as e:
+                    return JsonResponse({'message':'Something Went Wrong, Please try again letter'}, status=400)
             return JsonResponse({'message':'Email field can\'t be blank'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
 

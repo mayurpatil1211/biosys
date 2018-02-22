@@ -6,7 +6,10 @@ urlpatterns=[
 	url(r'^register/', views.register, name='register'),
 	url(r'userLogin', views.login, name='userlogin'),
 	url(r'^logout/$', views.logout, name='logout'),
+	
 	url(r'^attendance/', views.AttendanceCreate.as_view()),
+
+	url(r'^forgot_password$', views.forgot_password, name='forgot_password'),
 
 	url(r'^add_employee', views.AddEmployeeView.as_view(), name='add_employee'),
 

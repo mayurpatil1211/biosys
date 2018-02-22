@@ -16,6 +16,20 @@ import random
 import string
 from django.utils import timezone
 
+
+class Status(ChoiceEnum):
+    Available = "Available"
+    Booked = "Booked"
+    Maintenance = "Maintenance"
+    Occupied = "Occupied"
+    CheckedOut = "CheckedOut"
+
+class PaidBy(ChoiceEnum):
+    Card = "Card"
+    Cash = "Cash"
+
+
+
 class RoomTypes(models.Model):
 	room_type = models.CharField(max_length=20)
 	price = models.FloatField()
@@ -26,12 +40,6 @@ class RoomTypes(models.Model):
 	def __str__(self):
 		return self.room_type
 
-class Status(ChoiceEnum):
-    Unavailable = "Unavailable"
-    Available = "Available"
-    Booked = "Booked"
-    Maintenance = "Maintenance"
-    Occupied = "Occupied"
 
 class Rooms(models.Model):
 	room_number = models.CharField(max_length=10, unique=True)
@@ -46,10 +54,12 @@ class Rooms(models.Model):
 
 class Booking(models.Model):
 	 room = models.ForeignKey(Rooms, on_delete=models.SET_NULL, related_name='booked_rooms', null=True)
-	 customer_name = models.CharField(max_length=100)
+	 customer_first_name = models.CharField(max_length=100)
+	 customer_last_name = models.CharField(max_length=100, null=True, blank=True)
 	 mobile_number = models.CharField(max_length=13)
 	 email = models.EmailField(null=True, blank=True)
-	 id_proof = models.FileField(null=True, blank=True)
+	 id_proof_one = models.FileField(null=True, blank=True)
+	 id_proof_two = models.FileField(null=True, blank=True)
 	 adults = models.IntegerField(default=0)
 	 child = models.IntegerField(default=0)
 	 check_in = models.DateField(null=True)
@@ -58,8 +68,10 @@ class Booking(models.Model):
 	 number_of_days = models.IntegerField(null=True)
 	 address = models.CharField(max_length=200, null=True, blank=True)
 	 city = models.CharField(max_length=50, blank=True, null=True)
+	 taluka = models.CharField(max_length=100, null=True, blank=True)
 	 pincode = models.IntegerField(null=True)
 	 status = models.BooleanField(default=True)
+	 booking_status = EnumChoiceField(enum_class=Status, default=Status.Booked)
 	 checked_in = models.BooleanField(default=False)
 
 	 def save(self, *args, **kwargs):
@@ -71,7 +83,9 @@ class Booking(models.Model):
 
 
 	 def __str__(self):
-	 	return self.customer_name
+	 	if self.customer_last_name:
+	 		return self.customer_first_name+ ' ' + str(self.customer_last_name)
+	 	return self.customer_first_name
 
 class FoodCategory(models.Model):
 	category_name = models.CharField(max_length=20)
@@ -112,6 +126,7 @@ class AdditionalBill(models.Model):
 
 class Billing(models.Model):
 	booking = models.OneToOneField(Booking, on_delete=models.SET_NULL, related_name='booking_bill', null=True)
+	paid_by = EnumChoiceField(enum_class=PaidBy, default=PaidBy.Cash)
 	additional_amount = models.FloatField(null=True, default=0)
 	room_price = models.FloatField(null=True, default=0)
 	tax = models.FloatField(null=True, default=0)
