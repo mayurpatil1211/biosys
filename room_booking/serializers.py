@@ -49,6 +49,7 @@ class BookingSerializerForRoom(serializers.ModelSerializer):
 	class Meta:
 		model = Booking
 		fields = [
+			'id',
 			'customer_first_name',
 			'customer_last_name',
 			'check_in',
@@ -63,7 +64,7 @@ class RoomGetSerializer(serializers.ModelSerializer):
 	status = EnumChoiceField(enum_class=Status)
 	room_number = serializers.CharField(required=False)
 	floor = serializers.IntegerField(required=False)
-	room_type = serializers.CharField(required=False)
+	room_type = RoomTypeSerializer()
 
 	def get_bookings(self, rooms):
 		qs = Booking.objects.filter(checked_in=False, room=rooms)
