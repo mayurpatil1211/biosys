@@ -22,6 +22,8 @@ from time import gmtime, strftime
 
 # Create your views here.
 
+
+
 class RoomTypeView(APIView):
     def post(self, request, format=None):
         if request.data:

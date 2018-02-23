@@ -64,7 +64,7 @@ class BookingSerializerForRoom(serializers.ModelSerializer):
 
 class RoomGetSerializer(serializers.ModelSerializer):
 	bookings = serializers.SerializerMethodField()
-	# status = EnumChoiceField(enum_class=Status)
+	status = EnumChoiceField(enum_class=Status)
 	room_number = serializers.CharField(required=False)
 	floor = serializers.IntegerField(required=False)
 	room_type = RoomTypeSerializer()
@@ -84,6 +84,7 @@ class RoomGetSerializer(serializers.ModelSerializer):
 		model = Rooms
 		fields = [
 			'id',
+			'status',
 			'room_number',
 			'floor',
 			'room_type',
