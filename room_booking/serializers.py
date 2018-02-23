@@ -5,12 +5,15 @@ from django.conf import settings
 from collections import namedtuple
 from enumchoicefield import ChoiceEnum, EnumChoiceField
 from django.http import JsonResponse
+from django.db.models import Q
+
 import datetime
 from datetime import date
 import time
 from datetime import datetime
 from time import gmtime, strftime
 from django.utils import timezone
+from dateutil.parser import parse
 
 class RoomTypeSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -36,7 +39,7 @@ class RoomStatusSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-
+# (Q(username=email) | Q(email=email))
 class BookingSerializerForRoom(serializers.ModelSerializer):
 	customer_first_name = serializers.CharField(required=False, allow_blank=True)
 	customer_last_name = serializers.CharField(required=False, allow_blank=True)
@@ -67,9 +70,15 @@ class RoomGetSerializer(serializers.ModelSerializer):
 	room_type = RoomTypeSerializer()
 
 	def get_bookings(self, rooms):
-		qs = Booking.objects.filter(checked_in=False, room=rooms)
-		serializer = BookingSerializerForRoom(instance=qs, many=True)
-		return serializer.data
+		today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+		today=(datetime.strptime(today, '%Y-%m-%d')).date()
+		bookings_obj = None
+		qs = Booking.objects.filter(room=rooms, check_in__gte=today).filter(check_out__lte=today)
+		booking = Booking.objects.filter(room=rooms)
+		for boo in booking:
+			if boo.check_in<=today and today<=boo.check_out:
+				serializer = BookingSerializerForRoom(instance=boo, many=False)
+				return serializer.data
 
 	class Meta:
 		model = Rooms
@@ -81,7 +90,6 @@ class RoomGetSerializer(serializers.ModelSerializer):
 			'room_type',
 			'bookings'
 		]
-
 
 
 class FoodCategorySerializer(serializers.ModelSerializer):
@@ -119,6 +127,11 @@ class BookingSerializer(serializers.ModelSerializer):
 	taluka = serializers.CharField(required=False, allow_blank=True)
 	booking_status = EnumChoiceField(enum_class=Status)
 	
+	def create(self, validated_data):
+		booking1 = Booking.objects.create(**validated_data)
+		RoomStatus.objects.create(booking=booking1, room=booking1.room, from_date=booking1.check_in, to_date=booking1.check_out, room_status=Status.Booked)
+		return booking1
+
 	class Meta:
 		model = Booking
 		fields = '__all__'
@@ -146,6 +159,7 @@ class CheckInBookingSerializer(serializers.ModelSerializer):
 
 	def create(self, validated_data):
 		check_in_instance = Booking.objects.create(checked_in=True, booking_status = Status.Occupied, **validated_data)
+		RoomStatus.objects.create(booking=check_in_instance, room=check_in_instance.room, from_date=check_in_instance.check_in, to_date=check_in_instance.check_out, room_status=Status.Occupied)
 		return check_in_instance
 	
 	class Meta:
@@ -195,22 +209,22 @@ class BookingBillingSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Booking
 		fields = [
-			'room',
-			'customer_name',
+			'id', 
+			'customer_first_name',
+			'customer_last_name', 
 			'adults',
-			'child',
 			'check_in',
 			'check_out',
-			'number_of_days',
+			'child',
 			'address',
-			'additional_bill',
-			'booking_bill',
-			'mobile_number',
 			'email',
-			'id_proof',
+			'id_proof_one',
+			'id_proof_two',
+			'taluka',
 			'token_amount',
-			'city',
-			'pincode'
+			'pincode',
+			'additional_bill',
+			'booking_bill'
 		]
 
 class BookingInfoSerializer(serializers.ModelSerializer):
@@ -240,3 +254,18 @@ class BookingInfoSerializer(serializers.ModelSerializer):
 			'pincode',
 			'additional_bill'
 		]
+
+class RoomForRoomStatusSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Rooms
+		fields = ['room_number', 'room_type', 'floor']
+
+
+
+class RoomStatusSerializer(serializers.ModelSerializer):
+	room = RoomForRoomStatusSerializer(many=False)
+	booking = BookingSerializer(many=False)
+
+	class Meta:
+		model = RoomStatus
+		fields = ['from_date', 'to_date', 'room', 'booking', 'room_status', 'room']

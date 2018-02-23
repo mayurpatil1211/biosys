@@ -5,6 +5,7 @@ from .serializers import *
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.db.models import Q
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
@@ -306,10 +307,13 @@ def check_in_booked_customer(request):
                 booking.room.status = Status.Occupied
                 booking.booking_status = Status.Occupied
                 room_obj = Rooms.objects.filter(id=booking.room.id).first()
+                roomStatus_obj = RoomStatus.objects.filter(booking=booking).first()
                 if room_obj:
                     room_obj.status = Status.Occupied
+                    roomStatus_obj.room_status = Status.Occupied
                     booking.save()
                     room_obj.save()
+                    roomStatus_obj.save()
                     return JsonResponse({'message':'Customer Checked In Successfully'}, status=200)
                 return JsonResponse({'message':'Room Not Found'}, status=400)
         return JsonResponse({'message':'May be this booking has already checked in or not Available'}, status=400)
@@ -385,9 +389,28 @@ class AdditionalBillView(APIView):
         return Response(serializers.data)
 
 #-----CheckOut------
+
+def change_roomStatus_on_checkout(booking):
+    today = datetime.strftime(datetime.today().date(), '%Y-%m-%d')
+    change_room_status = RoomStatus.objects.filter(booking=booking.id).first()
+    if change_room_status:
+        change_room_status.status = False
+        change_room_status.room_status = Status.CheckedOut
+        change_room_status.save()
+    else:
+        pass
+    roomStatus = RoomStatus.objects.filter(room=booking.room, from_date=today, status=True).first()
+    if roomStatus:
+        roomStatus.room.status = roomStatus.room_status
+        roomStatus.room.save()
+        return 1
+    change_room_status.room.status = Status.Available
+    change_room_status.room.save()
+    return 1
+
 @api_view(['POST'])
 def check_out(request):
-    if request.data:
+    if request.data:                
         try:
             booking_id = request.data['booking']
         except(KeyError)as e:
@@ -400,8 +423,8 @@ def check_out(request):
             else:
                 pass
             booking.status=False #checkout flag
-            booking.room.status = Status.Available
-            booking.room.save()
+            booking.booking_status = Status.CheckedOut
+            change_roomStatus_on_checkout(booking)
             start_date = (booking.check_in).strftime("%Y-%m-%d")
             end_date = (booking.check_out).strftime("%Y-%m-%d")
             start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d")
@@ -487,3 +510,27 @@ class BookingHistoryFilter(APIView):
                 result.extend(serializers.data)
             return Response(result)
         return JsonResponse({'message':'Bad Request'}, status=400)
+
+
+
+class RoomHistoryView(APIView):
+    def post(self, request, room_id, format=None):
+        from_date = request.data.get('from_date', None)
+        to_date = request.data.get('to_date', None)
+        check_in = (datetime.strptime(from_date, '%Y-%m-%d')).date()
+        check_out = (datetime.strptime(to_date, '%Y-%m-%d')).date()
+        # booking = RoomStatus.objects.filter(Q(from_date__gte=check_in) | Q(to_date__lte=check_out)).filter(room=room_id, status=True)
+        booking = RoomStatus.objects.filter(Q(from_date__range=[check_in, check_out]) | Q(to_date__range=[check_in, check_out])).filter(room=room_id)
+        serializers = RoomStatusSerializer(booking, many=True)
+        return Response(serializers.data)
+
+class RoomHistoryAll(APIView):
+    def post(self, request, format=None):
+        from_date = request.data.get('from_date', None)
+        to_date = request.data.get('to_date', None)
+        check_in = (datetime.strptime(from_date, '%Y-%m-%d')).date()
+        check_out = (datetime.strptime(to_date, '%Y-%m-%d')).date()
+
+        booking = RoomStatus.objects.filter(Q(from_date__range=[check_in, check_out]) | Q(to_date__range=[check_in, check_out]))
+        serializers = RoomStatusSerializer(booking, many=True)
+        return Response(serializers.data)

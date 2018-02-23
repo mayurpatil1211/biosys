@@ -50,8 +50,6 @@ class Rooms(models.Model):
 	def __str__(self):
 		return self.room_number
 
-
-
 class Booking(models.Model):
 	 room = models.ForeignKey(Rooms, on_delete=models.SET_NULL, related_name='booked_rooms', null=True)
 	 customer_first_name = models.CharField(max_length=100)
@@ -86,6 +84,17 @@ class Booking(models.Model):
 	 	if self.customer_last_name:
 	 		return self.customer_first_name+ ' ' + str(self.customer_last_name)
 	 	return self.customer_first_name
+
+
+class RoomStatus(models.Model):
+	room = models.ForeignKey(Rooms, on_delete=models.CASCADE, related_name='room')
+	from_date = models.DateField(null=True)
+	to_date = models.DateField(null=True)
+	room_status = EnumChoiceField(enum_class=Status, default=Status.Maintenance)
+	booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, related_name='booking', null=True)
+	status = models.BooleanField(default=True)
+
+
 
 class FoodCategory(models.Model):
 	category_name = models.CharField(max_length=20)

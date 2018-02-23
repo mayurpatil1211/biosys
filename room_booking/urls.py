@@ -24,5 +24,8 @@ urlpatterns=[
 	url(r'^checkout', views.check_out, name='check_out'),
 	url(r'^history/booking$', views.BookingHistory.as_view(), name='booking_history'),
 	url(r'^history/booking/filter', views.BookingHistoryFilter.as_view(), name	='filter_booking_history'),
+
+	url(r'^history/(?P<room_id>[0-9]+)$', views.RoomHistoryView.as_view(), name='room_history'),
+	url(r'^history$', views.RoomHistoryAll.as_view(), name='rooms_history'),
 	
 ]
