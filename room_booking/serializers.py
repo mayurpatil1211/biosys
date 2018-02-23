@@ -177,6 +177,7 @@ class BookingGetSerializer(serializers.ModelSerializer):
 					'customer_last_name', 
 					'adults',
 					'check_in',
+					'room',
 					'check_out',
 					'child',
 					'address',
