@@ -537,19 +537,35 @@ def check_out(request):
         booking = Booking.objects.filter(id=booking_id, checked_in=True).first()
         if booking:
             if booking.check_out is None:
-                booking.check_out = timezone.localtime(timezone.now())
+                today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+                booking.check_out = (datetime.strptime(today, '%Y-%m-%d')).date()
             else:
                 pass
             booking.status=False #checkout flag
             booking.booking_status = Status.CheckedOut
             change_roomStatus_on_checkout(booking)
+            # start_date = (booking.check_in).strftime("%Y-%m-%d")
+            # end_date = (booking.check_out).strftime("%Y-%m-%d")
+            # start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d")
+            # end_date1 = datetime.strptime(str(end_date), "%Y-%m-%d")
+            # diff = abs((end_date1-start_date1).days)
+            # booking.number_of_days = diff+1
+            # booking.save()
+
             start_date = (booking.check_in).strftime("%Y-%m-%d")
-            end_date = (booking.check_out).strftime("%Y-%m-%d")
-            start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d")
-            end_date1 = datetime.strptime(str(end_date), "%Y-%m-%d")
-            diff = abs((end_date1-start_date1).days)
+
+            start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+
+            today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+            today=(datetime.strptime(today, '%Y-%m-%d')).date()
+            booking.check_out = today
+            roomStatus = RoomStatus.objects.filter(booking=booking).first()
+            roomStatus.to_date = today
+            roomStatus.save()
+            diff = abs((today-start_date1).days)
             booking.number_of_days = diff+1
             booking.save()
+
             final_bill = bill_on_checkout(booking.id)
             serializers = BookingBillingSerializer(booking)
             

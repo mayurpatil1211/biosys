@@ -274,11 +274,40 @@ class BookingInfoSerializer(serializers.ModelSerializer):
 			'booking_bill'
 		]
 
+class RoomStatusBookingSerializer(serializers.ModelSerializer):
+	additional_bill = AdditionalBillSerializer(many=True)
+	booking_bill = BillingSerializer(required=False)
+	# check_in = serializers.DateTimeField(format="%Y-%m-%d")
+
+	class Meta:
+		model = Booking
+		fields = [
+			'id', 
+			'room',
+			'customer_first_name',
+			'customer_last_name', 
+			'adults',
+			'check_in',
+			'check_out',
+			'child',
+			'address',
+			'email',
+			'id_proof_one',
+			'id_proof_two',
+			'taluka',
+			'checked_in',
+			'booking_status',
+			'token_amount',
+			'pincode',
+			'additional_bill',
+			'booking_bill'
+		]
+
 
 
 class RoomStatusSerializer(serializers.ModelSerializer):
 	room = RoomForRoomStatusSerializer(many=False)
-	booking = BookingSerializer(many=False)
+	booking = RoomStatusBookingSerializer(many=False)
 
 	class Meta:
 		model = RoomStatus
