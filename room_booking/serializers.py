@@ -223,6 +223,7 @@ class BookingBillingSerializer(serializers.ModelSerializer):
 			'customer_first_name',
 			'customer_last_name', 
 			'adults',
+			'room',
 			'check_in',
 			'check_out',
 			'child',
