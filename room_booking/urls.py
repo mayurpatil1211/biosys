@@ -22,7 +22,10 @@ urlpatterns=[
 	url(r'^booking/check_in', views.check_in_booked_customer, name='check_in_booked'),
 
 	url(r'^additional_bill', views.AdditionalBillView.as_view(), name='additional_bill'),
+	
+	url(r'^info/checkout$', views.bookin_billing_info, name='check_out_info'),
 	url(r'^checkout', views.check_out, name='check_out'),
+
 	url(r'^history/booking$', views.BookingHistory.as_view(), name='booking_history'),
 	url(r'^history/booking/filter', views.BookingHistoryFilter.as_view(), name	='filter_booking_history'),
 

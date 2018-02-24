@@ -241,7 +241,7 @@ class BookingInfoSerializerRoom(serializers.ModelSerializer):
 	room_type = RoomTypeSerializer()
 	class Meta:
 		model = Rooms
-		fields = ['room_number', 'floor', 'room_type']
+		fields = ['id', 'room_number', 'floor', 'room_type']
 
 
 class BookingInfoSerializer(serializers.ModelSerializer):

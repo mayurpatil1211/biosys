@@ -491,33 +491,36 @@ def change_roomStatus_on_checkout(booking):
     return 1
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 def bookin_billing_info(request):
-    if request.data:                
-        try:
-            booking_id = request.data['booking']
-        except(KeyError)as e:
-            return JsonResponse({'message':'Please Tell Us which booking'}, status=400)
+    main_obj = []                
 
-        booking = Booking.objects.filter(id=booking_id, checked_in=True).first()
-        if booking:
+    bookings = Booking.objects.filter(checked_in=True, booking_status=Status.Occupied).all()
+    if bookings:
+        for booking in bookings:
             if booking.check_out is None:
                 booking.check_out = timezone.localtime(timezone.now())
             else:
                 pass
             start_date = (booking.check_in).strftime("%Y-%m-%d")
-            end_date = (booking.check_out).strftime("%Y-%m-%d")
-            start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d")
-            end_date1 = datetime.strptime(str(end_date), "%Y-%m-%d")
-            diff = abs((end_date1-start_date1).days)
+
+            start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+
+            today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+            today=(datetime.strptime(today, '%Y-%m-%d')).date()
+
+            diff = abs((today-start_date1).days)
+
             booking.number_of_days = diff+1
             booking.save()
             final_bill = bill_on_checkout(booking.id)
             serializers = BookingBillingSerializer(booking)
-            
-            return Response(serializers.data)
-        return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
-    return JsonResponse({'message':'Bad Request'}, status=400)
+            result = serializers.data
+            main_obj.append(serializers.data)
+            del_bill = Billing.objects.filter(booking=booking).first()
+            del_bill.delete()
+        return Response(main_obj)
+    return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
 
 
 
