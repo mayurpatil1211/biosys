@@ -15,12 +15,37 @@ from rest_framework.permissions import AllowAny
 from annoying.functions import get_object_or_None
 from datetime import date
 
+import datetime
 from collections import namedtuple
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import gmtime, strftime
-
+import time
 # Create your views here.
+from apscheduler.schedulers.background import BackgroundScheduler
+from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
+
+scheduler = BackgroundScheduler()
+scheduler.add_jobstore(DjangoJobStore(), "default")
+
+@register_job(scheduler, "interval", seconds=10, replace_existing=True)
+def test_job():
+    today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+    today=(datetime.strptime(today, '%Y-%m-%d')).date()
+    tommorrow = today+timedelta(days=1)
+    roomStatus = RoomStatus.objects.filter(status=True).all()
+    for room in roomStatus:
+        if room.from_date<=today and today<=room.to_date:
+            room.room.status = room.room_status
+            room.room.save()
+        else:
+            room.room.status= Status.Available
+            room.room.save()
+
+
+register_events(scheduler)
+scheduler.start()
+print("Scheduler started!")
 
 
 
@@ -67,6 +92,61 @@ class RoomTypeView(APIView):
                 return JsonResponse({'message':'Room type deleted Successfully'}, status=200)
             return JsonResponse({'message':'Room type Not Found'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
+
+
+class RoomViewBasedDate(APIView):
+    def post(self, request, format=None):
+        from_date = request.data.get('from_date', None)
+        to_date = request.data.get('to_date', None)
+        
+        from_date = (datetime.strptime(from_date, '%Y-%m-%d')).date()
+        to_date = (datetime.strptime(to_date, '%Y-%m-%d')).date()
+        rooms = Rooms.objects.all()
+        rooms_status = []
+        for roo in rooms:
+            room = {}
+            # print(room)
+            room['id'] = roo.id
+            room['room_number'] = roo.room_number
+            room['floor'] = roo.floor
+            room['current_status'] = str(roo.status)
+            room['bookings']=[]
+            bookings_obj = RoomStatus.objects.filter(room=roo, status=True).all()
+            if bookings_obj:
+                for book in bookings_obj:
+                    booking = {}
+                    if book.from_date <= from_date <=book.to_date and book.from_date<= to_date <=book.to_date:
+                        booking['from_date'] = book.from_date
+                        booking['to_date'] = book.to_date
+                        booking['room_status'] = str(book.room_status)
+                        booking['booking_item'] = {}
+                        item = Booking.objects.filter(id=book.booking.id).first()
+                        print(book.booking.id)
+                        if item:
+                            item_obj = {}
+
+                            booking['booking_item']['customer_first_name'] = item.customer_first_name
+                            booking['booking_item']['customer_last_name'] = item.customer_last_name
+                            booking['booking_item']['mobile_number'] = item.mobile_number
+                            booking['booking_item']['email'] = item.email
+                            booking['booking_item']['adults'] = item.adults
+                            booking['booking_item']['child'] = item.child
+                            booking['booking_item']['token_amount'] = item.token_amount
+                            booking['booking_item']['check_out'] = item.check_out
+                            booking['booking_item']['address'] = item.address
+                            booking['booking_item']['city'] = item.city
+                            booking['booking_item']['taluka'] = item.taluka
+                            booking['booking_item']['pincode'] = item.pincode
+                            # booking['booking_item'] = item_obj
+                        else:
+                            booking = {}
+                        room['bookings'].append(booking)
+                    else:
+                        pass
+            rooms_status.append(room)
+
+        return JsonResponse({'rooms_status': rooms_status}, status=200)
+
 
 
 class RoomStatusIndividualView(APIView):
@@ -536,3 +616,4 @@ class RoomHistoryAll(APIView):
         booking = RoomStatus.objects.filter(Q(from_date__range=[check_in, check_out]) | Q(to_date__range=[check_in, check_out]))
         serializers = RoomStatusSerializer(booking, many=True)
         return Response(serializers.data)
+

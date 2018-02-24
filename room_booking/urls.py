@@ -4,7 +4,8 @@ from . import views
 
 urlpatterns=[
 	url(r'^room_types', views.RoomTypeView.as_view(), name='room_types'),
-	url(r'^rooms', views.RoomView.as_view(), name='rooms'),
+	url(r'^rooms$', views.RoomView.as_view(), name='rooms'),
+	url(r'^rooms/info', views.RoomViewBasedDate.as_view(), name='rooms_on_date'),
 
 	url(r'^status', views.RoomStatusIndividualView.as_view(), name='room_status'),
 	url(r'^multiple/status', views.RoomStatusMultipleView.as_view(), name='multiple_room_status'),

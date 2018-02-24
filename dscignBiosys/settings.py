@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'annoying',
     'enumchoicefield',
+    'django_apscheduler',
+
 
 ]
 

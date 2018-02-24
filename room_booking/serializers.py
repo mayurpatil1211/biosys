@@ -39,6 +39,12 @@ class RoomStatusSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
+class RoomForRoomStatusSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Rooms
+		fields = ['room_number', 'room_type', 'floor']
+
+
 # (Q(username=email) | Q(email=email))
 class BookingSerializerForRoom(serializers.ModelSerializer):
 	customer_first_name = serializers.CharField(required=False, allow_blank=True)
@@ -168,6 +174,7 @@ class CheckInBookingSerializer(serializers.ModelSerializer):
 
 class BookingGetSerializer(serializers.ModelSerializer):
 	additional_bill = AdditionalBillSerializer(many=True)
+	room = RoomForRoomStatusSerializer()
 
 	class Meta:
 		model = Booking
@@ -182,6 +189,8 @@ class BookingGetSerializer(serializers.ModelSerializer):
 					'child',
 					'address',
 					'email',
+					'mobile_number',
+					'city',
 					'id_proof_one',
 					'id_proof_two',
 					'taluka',
@@ -228,9 +237,17 @@ class BookingBillingSerializer(serializers.ModelSerializer):
 			'booking_bill'
 		]
 
+class BookingInfoSerializerRoom(serializers.ModelSerializer):
+	room_type = RoomTypeSerializer()
+	class Meta:
+		model = Rooms
+		fields = ['room_number', 'floor', 'room_type']
+
+
 class BookingInfoSerializer(serializers.ModelSerializer):
 	additional_bill = AdditionalBillSerializer(many=True)
-	room = RoomGetSerializer()
+	room = BookingInfoSerializerRoom()
+	booking_bill = BillingSerializer(required=False)
 	# check_in = serializers.DateTimeField(format="%Y-%m-%d")
 
 	class Meta:
@@ -253,13 +270,9 @@ class BookingInfoSerializer(serializers.ModelSerializer):
 			'booking_status',
 			'token_amount',
 			'pincode',
-			'additional_bill'
+			'additional_bill',
+			'booking_bill'
 		]
-
-class RoomForRoomStatusSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Rooms
-		fields = ['room_number', 'room_type', 'floor']
 
 
 
