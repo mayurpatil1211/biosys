@@ -124,7 +124,7 @@ class RoomViewBasedDate(APIView):
                         print(book.booking.id)
                         if item:
                             item_obj = {}
-
+                            booking['booking_item']['id'] = item.id
                             booking['booking_item']['customer_first_name'] = item.customer_first_name
                             booking['booking_item']['customer_last_name'] = item.customer_last_name
                             booking['booking_item']['mobile_number'] = item.mobile_number
