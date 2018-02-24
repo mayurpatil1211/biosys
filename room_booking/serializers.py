@@ -42,7 +42,7 @@ class RoomStatusSerializer(serializers.ModelSerializer):
 class RoomForRoomStatusSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Rooms
-		fields = ['room_number', 'room_type', 'floor']
+		fields = ['id','room_number', 'room_type', 'floor']
 
 
 # (Q(username=email) | Q(email=email))
