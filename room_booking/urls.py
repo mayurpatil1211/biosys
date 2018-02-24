@@ -24,6 +24,7 @@ urlpatterns=[
 	url(r'^additional_bill', views.AdditionalBillView.as_view(), name='additional_bill'),
 	
 	url(r'^info/checkout$', views.bookin_billing_info, name='check_out_info'),
+	url(r'^info/checkout/(?P<booking_id>[0-9]+)$', views.bookin_billing_info_single, name='check_out_info_single'),
 	url(r'^checkout', views.check_out, name='check_out'),
 
 	url(r'^history/booking$', views.BookingHistory.as_view(), name='booking_history'),

@@ -523,6 +523,34 @@ def bookin_billing_info(request):
     return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
 
 
+@api_view(['GET'])
+def bookin_billing_info_single(request, booking_id):               
+    booking = Booking.objects.filter(checked_in=True, id=booking_id).first()
+    if booking:
+        if booking.check_out is None:
+            booking.check_out = timezone.localtime(timezone.now())
+        else:
+            pass
+        start_date = (booking.check_in).strftime("%Y-%m-%d")
+
+        start_date1 = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+
+        today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+        today=(datetime.strptime(today, '%Y-%m-%d')).date()
+
+        diff = abs((today-start_date1).days)
+
+        booking.number_of_days = diff+1
+        booking.save()
+        final_bill = bill_on_checkout(booking.id)
+        serializers = BookingBillingSerializer(booking)
+        result = serializers.data
+        del_bill = Billing.objects.filter(booking=booking).first()
+        del_bill.delete()
+        return Response(result)
+    return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
+
+
 
 
 
