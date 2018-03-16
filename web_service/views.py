@@ -1604,7 +1604,7 @@ class SalaryView(APIView):
 
 class SalaryIndividual(APIView):
     def get(self, request, user):
-        salary = Salary.objects.get(user=user)
+        salary = Salary.objects.filter(user=user).first()
         serializer = SalarySerializer(salary)
         return Response(serializer.data)
 
