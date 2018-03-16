@@ -1671,21 +1671,23 @@ def salary_request(request):
     year = request.data.get('year', None)
     if user_id:
         salary_info = Salary.objects.filter(user=user_id).first()
-        calculate_lop = calculate_lop_f(user_id, month, year)
-        salary_of_one_day = float(salary_info.net_salary)/float(25)
-        lop_cost = float(calculate_lop)*float(salary_of_one_day)
-        salary_request=SalaryRequest(
-                user = salary_info.user,
-                basic = salary_info.basic,
-                hra = salary_info.hra,
-                conveyance_allowance = salary_info.conveyance_allowance,
-                deduction = lop_cost,
-                misc_allowance = salary_info.misc_allowance,
-                proffesional_tax = salary_info.proffesional_tax,
-                net_salary = salary_info.net_salary
-            )
-        salary_request.save()
-        return JsonResponse({'message':'Salary Requested'}, status=200)
+        if salary_info:
+            calculate_lop = calculate_lop_f(user_id, month, year)
+            salary_of_one_day = float(salary_info.net_salary)/float(25)
+            lop_cost = float(calculate_lop)*float(salary_of_one_day)
+            salary_request=SalaryRequest(
+                    user = salary_info.user,
+                    basic = salary_info.basic,
+                    hra = salary_info.hra,
+                    conveyance_allowance = salary_info.conveyance_allowance,
+                    deduction = lop_cost,
+                    misc_allowance = salary_info.misc_allowance,
+                    proffesional_tax = salary_info.proffesional_tax,
+                    net_salary = salary_info.net_salary
+                )
+            salary_request.save()
+            return JsonResponse({'message':'Salary Requested'}, status=200)
+        return JsonResponse({'message':'Salary Has been not assigned to the Employee'}, status=400)
     return JsonResponse({'message':'Bad Request'}, status=400)
 
 
