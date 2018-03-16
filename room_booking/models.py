@@ -139,8 +139,10 @@ class Billing(models.Model):
 	additional_amount = models.FloatField(null=True, default=0)
 	room_price = models.FloatField(null=True, default=0)
 	tax = models.FloatField(null=True, default=0)
+	room_price_total = models.FloatField(null=True, default=0)
 	number_of_days = models.FloatField(null=True, default=0)
 	total_amount = models.FloatField(null=True, default=0)
+	invoice = models.FileField(null=True)
 
 	@property
 	def calculate_bill(self):
@@ -158,10 +160,24 @@ class Billing(models.Model):
 		final_amount = float(actual_amount)+float(calculate_tax)+float(additional_amount)-float(token)
 		return final_amount
 
+	@property
+	def room_price_calculate(self):
+		number_of_days = self.number_of_days
+		tax = self.tax
+		token = self.booking.token_amount
+		booking = Booking.objects.filter(id=self.booking.id).first()
+		room_price = booking.room.room_type.price
+		actual_amount = float(number_of_days) * float(room_price)
+		one_percent_tax = float(actual_amount)/100
+		calculate_tax = float(one_percent_tax) * tax
+		final_amount = float(actual_amount)+float(calculate_tax)-float(token)
+		return final_amount
+
 	def save(self, *args, **kwargs):
 		booking = Booking.objects.filter(id=self.booking.id).first()
 		room_of_price = booking.room.room_type.price
 		self.total_amount = self.calculate_bill
+		self.room_price_total = self.room_price_calculate
 		super(Billing, self).save(*args, **kwargs)
 
 

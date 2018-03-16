@@ -40,6 +40,7 @@ class RoomStatusSerializer(serializers.ModelSerializer):
 
 
 class RoomForRoomStatusSerializer(serializers.ModelSerializer):
+	room_type = RoomTypeSerializer()
 	class Meta:
 		model = Rooms
 		fields = ['id','room_number', 'room_type', 'floor']
@@ -110,7 +111,6 @@ class AdditionalBillSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = AdditionalBill
 		fields = '__all__'
-
 
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -206,12 +206,22 @@ class BookingGetSerializer(serializers.ModelSerializer):
 class BillingSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Billing
-		fields = '__all__'
+		fields = [
+					'paid_by',
+					'additional_amount',
+					'room_price',
+					'tax',
+					'room_price_total',
+					'number_of_days',
+					'total_amount',
+					'invoice'
+				]
 
 
 class BookingBillingSerializer(serializers.ModelSerializer):
 	additional_bill = AdditionalBillSerializer(many=True)
 	booking_bill = BillingSerializer(required=False)
+	room = RoomForRoomStatusSerializer()
 
 	check_in = serializers.DateTimeField(format="%Y-%m-%d")
 	check_out = serializers.DateTimeField(format="%Y-%m-%d")
@@ -229,6 +239,8 @@ class BookingBillingSerializer(serializers.ModelSerializer):
 			'child',
 			'address',
 			'email',
+			'mobile_number',
+			'city',
 			'id_proof_one',
 			'id_proof_two',
 			'taluka',
@@ -276,7 +288,7 @@ class BookingInfoSerializer(serializers.ModelSerializer):
 		]
 
 class RoomStatusBookingSerializer(serializers.ModelSerializer):
-	additional_bill = AdditionalBillSerializer(many=True)
+	additional_bill = AdditionalBillSerializer(many=True, required=False)
 	booking_bill = BillingSerializer(required=False)
 	# check_in = serializers.DateTimeField(format="%Y-%m-%d")
 
@@ -298,6 +310,47 @@ class RoomStatusBookingSerializer(serializers.ModelSerializer):
 			'taluka',
 			'checked_in',
 			'booking_status',
+			'token_amount',
+			'pincode',
+			'additional_bill',
+			'booking_bill'
+		]
+
+
+
+class CheckoutBillingSerializer(serializers.ModelSerializer):
+	invoice = serializers.FileField(required=True)
+	class Meta:
+		model = Billing
+		fields = '__all__'
+
+
+class CheckoutBookingBillingSerializer(serializers.ModelSerializer):
+	additional_bill = AdditionalBillSerializer(many=True)
+	booking_bill = CheckoutBillingSerializer(required=False)
+	room = RoomForRoomStatusSerializer()
+
+	check_in = serializers.DateTimeField(format="%Y-%m-%d")
+	check_out = serializers.DateTimeField(format="%Y-%m-%d")
+
+	class Meta:
+		model = Booking
+		fields = [
+			'id', 
+			'customer_first_name',
+			'customer_last_name', 
+			'adults',
+			'room',
+			'check_in',
+			'check_out',
+			'child',
+			'address',
+			'email',
+			'mobile_number',
+			'city',
+			'id_proof_one',
+			'id_proof_two',
+			'taluka',
 			'token_amount',
 			'pincode',
 			'additional_bill',

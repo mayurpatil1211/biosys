@@ -161,6 +161,7 @@ class AppliedLeaveSerializer(serializers.ModelSerializer):
     appliedOn = serializers.DateField(required=False)
     actionOn = serializers.DateTimeField(required=False)
     declined = serializers.BooleanField(required=False)
+    
     class Meta:
         model = AppliedLeave
         fields = ('id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn')

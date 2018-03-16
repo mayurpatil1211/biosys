@@ -1702,6 +1702,25 @@ def calculate_lop_f(user_id, month, year):
     return lop
 
 ######----------Credit Salary--------######
+class SalaryRequestedIndividual(APIView):
+    def get(self, request, user_id):
+        this_year = datetime.today()
+        if datetime.today().month>3:
+            year = int(datetime.strftime(datetime.today(), '%Y'))
+            from_date = str(year)+ '04' + '01'
+            from_year_date = datetime.strptime(from_date, "%Y%m%d")
+            salaries = SalaryRequest.objects.filter(user=user_id, credited=True, created_on__range=(from_year_date, this_year)).all()
+            serializer = SalaryRequestedSerializer(salaries, many=True)
+            return Response(serializer.data)
+        else:
+            year = int(datetime.strftime(datetime.today(), '%Y'))
+            from_date = str(year-1)+ '04' + '01'
+            from_year_date = datetime.strptime(from_date, "%Y%m%d")
+            salaries = SalaryRequest.objects.filter(user=user_id, credited=True, created_on__range=(from_year_date, this_year)).all()
+            serializer = SalaryRequestedSerializer(salaries, many=True)
+            return Response(serializer.data)
+
+
 class SalaryRequested(APIView):
     def get(self, request):
         salaries = SalaryRequest.objects.filter(credited=False).all()

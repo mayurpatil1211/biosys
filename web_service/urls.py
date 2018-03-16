@@ -20,6 +20,7 @@ urlpatterns=[
 	url(r'^salary_request$', views.salary_request, name='salary_request'),
 	url(r'^salary_requested$', views.SalaryRequested.as_view(), name='salary_requested'),
 	url(r'^salary/(?P<user>[0-9]+)$', views.SalaryIndividual.as_view(), name='individual_salary'),
+	url(r'^salary_paid/(?P<user_id>[0-9]+)$', views.SalaryRequestedIndividual.as_view(), name='salary_requested_history'),
 	url(r'^salary', views.SalaryView.as_view(), name='salary'),
 
 

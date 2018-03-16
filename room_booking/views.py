@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import *
 from .serializers import *
 
+import os
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.utils import timezone
@@ -24,6 +25,14 @@ import time
 # Create your views here.
 from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
+
+from shutil import copyfile
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.conf import settings
+from weasyprint import HTML
+
 
 scheduler = BackgroundScheduler()
 scheduler.add_jobstore(DjangoJobStore(), "default")
@@ -523,8 +532,11 @@ def bookin_billing_info(request):
     return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
 
 
+
+
 @api_view(['GET'])
-def bookin_billing_info_single(request, booking_id):               
+@permission_classes((AllowAny,))
+def bookin_billing_info_single(request, booking_id):
     booking = Booking.objects.filter(checked_in=True, id=booking_id).first()
     if booking:
         if booking.check_out is None:
@@ -549,10 +561,6 @@ def bookin_billing_info_single(request, booking_id):
         del_bill.delete()
         return Response(result)
     return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
-
-
-
-
 
 @api_view(['POST'])
 def check_out(request):
@@ -596,7 +604,6 @@ def check_out(request):
 
             final_bill = bill_on_checkout(booking.id)
             serializers = BookingBillingSerializer(booking)
-            
             return Response(serializers.data)
         return JsonResponse({'message':'Either Invalid Booking or customer not checked in'}, status=400)
     return JsonResponse({'message':'Bad Request'}, status=400)
@@ -697,3 +704,78 @@ class RoomHistoryAll(APIView):
         serializers = RoomStatusSerializer(booking, many=True)
         return Response(serializers.data)
 
+##################--Cancel Booking--#################
+@api_view(['PUT'])
+def cancel_booking(request):
+    id = request.data.get('booking_id', None)
+    if id:
+        booking = Booking.objects.filter(id=id).first()
+        if booking:
+            booking.status=False
+            roomStatus = RoomStatus.objects.filter(booking=id).first()
+            roomStatus.status = False
+            booking.save() 
+            roomStatus.save()
+            room = Rooms.objects.filter(id=booking.room.id).first()
+            room.status=Status.Available
+            room.save()
+            return JsonResponse({'message':'Booking Canceled Successfully'}, status=200)
+        return JsonResponse({'message':'Invalid Booking'}, status=400)
+    return JsonResponse({'message':'Bad Request'}, status=400)
+
+    ###############---Generate PDF----############
+from django.http import HttpResponse
+from django.template.loader import get_template
+from dscignBiosys.utils import render_to_pdf #created in step 4
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def generate_pdf(request, *args, **kwargs):
+    template = get_template('invoice.html')
+    data = {
+            "id": 24,
+            "room": {
+                "room_number": "102",
+                "floor": 3,
+                "room_type": {
+                "id": 1,
+                "room_type": "Delux AC",
+                "price": 1000,
+                "tax": 11.2,
+                "description": 'null',
+                "updated_on": "2018-01-18T13:02:12.433119+05:30"
+                }
+            },
+            "customer_first_name": "Johny",
+            "customer_last_name": "mendola",
+            "adults": 1,
+            "check_in": "2018-02-23",
+            "check_out": "2018-02-27",
+            "child": 0,
+            "address": "USA",
+            "city":"banglore",
+            "phone_number":"+919019802163",
+            "email": "john@gmail.com",
+            "id_proof_one": 'null',
+            "id_proof_two": 'null',
+            "taluka": "CA",
+            "checked_in": 'true',
+            "booking_status": "CheckedOut",
+            "token_amount": 500,
+            "pincode": 590014,
+            "additional_bill": [],
+            "booking_bill": {
+                "id": 26,
+                "paid_by": "Cash",
+                "additional_amount": 0,
+                "room_price": 1000,
+                "tax": 11.2,
+                "number_of_days": 5,
+                "total_amount": 5060,
+                "booking": 24
+            }
+            }
+    # html = template.render(data)
+    pdf = render_to_pdf('invoice.html', data)
+    return HttpResponse(pdf, content_type='application/pdf')
+    # return HttpResponse(html)

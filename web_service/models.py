@@ -150,7 +150,6 @@ class AppliedLeave(models.Model):
     appliedOn = models.DateField(auto_now_add=True, null=False)
     actionOn = models.DateTimeField(null=True,blank=True)
     declined = models.BooleanField(default=False)
-    # end_date-start_date
 
     def save(self, *args, **kwarg):
         start_date = datetime.datetime.strptime(str(self.leave_from), "%Y-%m-%d")

@@ -6,6 +6,7 @@ urlpatterns=[
 	url(r'^room_types', views.RoomTypeView.as_view(), name='room_types'),
 	url(r'^rooms$', views.RoomView.as_view(), name='rooms'),
 	url(r'^rooms/info', views.RoomViewBasedDate.as_view(), name='rooms_on_date'),
+	url(r'^booking/cancel', views.cancel_booking, name='cancel_booking'),
 
 	url(r'^status', views.RoomStatusIndividualView.as_view(), name='room_status'),
 	url(r'^multiple/status', views.RoomStatusMultipleView.as_view(), name='multiple_room_status'),
@@ -32,5 +33,7 @@ urlpatterns=[
 
 	url(r'^history/(?P<room_id>[0-9]+)$', views.RoomHistoryView.as_view(), name='room_history'),
 	url(r'^history$', views.RoomHistoryAll.as_view(), name='rooms_history'),
+
+	url(r'^generate_pdf', views.generate_pdf, name='generate_pdf'),
 	
 ]
