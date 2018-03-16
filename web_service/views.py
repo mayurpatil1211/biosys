@@ -1605,8 +1605,11 @@ class SalaryView(APIView):
 class SalaryIndividual(APIView):
     def get(self, request, user):
         salary = Salary.objects.filter(user=user).first()
-        serializer = SalarySerializer(salary)
-        return Response(serializer.data)
+        print(salary)
+        if salary:
+            serializer = SalarySerializer(salary)
+            return Response(serializer.data)
+        return JsonResponse({'message':'Salary Not Found'}, status=400)
 
 
 ############------------Bank Details-----------------################
@@ -1655,7 +1658,7 @@ class BankDetailsView(APIView):
 
 class BankDetailsIndividual(APIView):
     def get(self, request, user):
-        bankDetails = BankDetails.objects.get(user = user)
+        bankDetails = BankDetails.objects.filter(user = user).first()
         serializer = BankDetailsSerializer(bankDetails)
         return Response(serializer.data)
 
