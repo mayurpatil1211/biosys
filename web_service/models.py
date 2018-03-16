@@ -421,6 +421,8 @@ class SalaryRequest(models.Model):
     hra = models.FloatField(null=True)
     conveyance_allowance = models.FloatField(null=True)
     deduction = models.FloatField(null=True)
+    salary_month = models.IntegerField(null=False)
+    salary_year = models.IntegerField(null=False)
     misc_allowance = models.FloatField(null=True)
     proffesional_tax = models.FloatField(null=True)
     net_salary = models.FloatField(null=True)
