@@ -1659,8 +1659,10 @@ class BankDetailsView(APIView):
 class BankDetailsIndividual(APIView):
     def get(self, request, user):
         bankDetails = BankDetails.objects.filter(user = user).first()
-        serializer = BankDetailsSerializer(bankDetails)
-        return Response(serializer.data)
+        if bankDetails:
+            serializer = BankDetailsSerializer(bankDetails, many=False)
+            return Response(serializer.data)
+        return JsonResponse({'message':'Salary Not Found'}, status=400)
 
 
 
