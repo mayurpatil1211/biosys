@@ -1676,7 +1676,7 @@ def salary_request(request):
     year = request.data.get('year', None)
     if user_id and month and year:
         salary_info = Salary.objects.filter(user=user_id).first()
-        salary_requested = SalaryRequest.objects.filter(created_on__month=month, credited_on__year=year).first()
+        salary_requested = SalaryRequest.objects.filter(salary_month=month, salary_year=year, user=user_id).first()
         if not salary_requested:
             if salary_info:
                 calculate_lop = calculate_lop_f(user_id, month, year)
