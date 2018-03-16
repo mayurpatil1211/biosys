@@ -546,7 +546,7 @@ class AppliedLeaveUserHistory(APIView):
 @api_view(['GET'])
 def leave_info_user(id, *args, **kwargs):
     user = User.objects.filter(id=id).first()
-    print(user)
+    # print(user)
     return JsonResponse({'message': 'Leave assigned successfully'}, status=200)
 
 
@@ -558,7 +558,7 @@ class EmployeeBalanceLeave(APIView):
 		user = User.objects.filter(id=user_id).first()
 		if user:
 			leaves = Leaves.objects.filter(user=user).first()
-			print(leaves.balance_sick_leave)
+			# print(leaves.balance_sick_leave)
 			if leaves:
 				serializer = BalanceLeaveSerializer(leaves)
 				return Response(serializer.data)
@@ -1693,7 +1693,7 @@ def salary_request(request):
 
 def calculate_lop_f(user_id, month, year):
     employee_lop = EmployeeLop.objects.filter(user=user_id, appliedOn__month=month, appliedOn__year=year, status=True).all()
-    print(employee_lop)
+    # print(employee_lop)
     lop = 0
     if employee_lop:
         for e in employee_lop:
