@@ -94,7 +94,6 @@ class AddEmployeeView(APIView):
             phone_number = request.data.get('phone_no', None)
             if email:
                 user = User.objects.filter(Q(username=email) | Q(email=email)).first()
-                print(user)
                 if user is None:
                     user_save = User(
                         first_name = first_name,
@@ -109,16 +108,13 @@ class AddEmployeeView(APIView):
                         )
                     user_role.save()
                     request.data["user"] = user_save.id
-                    print(request.data)
                     if user_save:
                         try:
                             serializer = AddNewEmployeeSerializer(data=request.data)
-                            print('serializer', serializer)
                             if serializer.is_valid():
                                 serializer.save()
                                 return JsonResponse({'message':'User Added Successfully'}, status=200)
                         except(Exception)as e:
-                            print('Exception',e)
                             user_save.delete()
                             user_role.delete()
                             pass
@@ -161,6 +157,14 @@ class AddEmployeeView(APIView):
                     return JsonResponse({'message':'Something Went Wrong, Please try again letter'}, status=400)
             return JsonResponse({'message':'Email field can\'t be blank'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def get(self, request):
+        employees = Role.objects.all()
+        user_ids = [i.user_id for i in employees]
+        users = User.objects.filter(id__in = user_ids).filter(employee_other_details__approved=True)
+        # Herd.objects.annotate(animalCount=Count('animals')).filter(Q(animals__species_type='Cow')|Q(animalCount=0))
+        serializer = EmployeeListSerializer(users, many=True)
+        return Response(serializer.data)
 
             
 
@@ -613,6 +617,22 @@ def apply_leave(request):
                 pass
             return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
         return JsonResponse({'message': 'User Not Found'}, status=405)
+    return JsonResponse({'message': 'Bad Request'}, status=400)
+
+@api_view(['PUT'])
+def apply_leave(request):
+    if request.data:
+        _id = request.data.get('id', None)
+        user = User.objects.filter(id=request.data['user']).first()
+        update_leave = AppliedLeave.objects.filter(id=_id).first
+        if update_leave:
+            update_leave.type_of_leave = request.data['type_of_leave']
+            update_leave.leave_from = request.data['leave_from']
+            update_leave.to_leave = request.data['to_leave']
+            update_leave.reason = request.data['reason']
+            update_leave.save()
+            return JsonResponse({'message': 'Leave Updated Successfully'}, status=200)
+        return JsonResponse({'message': 'Invalid Leave'}, status=405)
     return JsonResponse({'message': 'Bad Request'}, status=400)
 
 
@@ -1718,6 +1738,7 @@ class SalaryRequestedIndividual(APIView):
     def get(self, request, user_id):
         this_year = datetime.today()
         if datetime.today().month>3:
+            print("in gt 3")
             year = int(datetime.strftime(datetime.today(), '%Y'))
             from_date = str(year)+ '04' + '01'
             from_year_date = datetime.strptime(from_date, "%Y%m%d")
@@ -1725,9 +1746,11 @@ class SalaryRequestedIndividual(APIView):
             serializer = SalaryRequestedSerializer(salaries, many=True)
             return Response(serializer.data)
         else:
+            # print("in lt 3")
             year = int(datetime.strftime(datetime.today(), '%Y'))
             from_date = str(year-1)+ '04' + '01'
             from_year_date = datetime.strptime(from_date, "%Y%m%d")
+            print(from_year_date)
             salaries = SalaryRequest.objects.filter(user=user_id, credited=True, created_on__range=(from_year_date, this_year)).all()
             serializer = SalaryRequestedSerializer(salaries, many=True)
             return Response(serializer.data)
@@ -1769,3 +1792,51 @@ def salary_credited(request):
             return JsonResponse({'message':'Not Found, Invalid data'}, status=400)
         return JsonResponse({'message':'unique id and user id is neccessory'}, status=400)
     return JsonResponse({'message':'Bad Request'}, status=400)
+###########-----Appraissal------###########
+class AppraisalsView(APIView):
+    def post(self, request):
+        if request.data:
+            user = User.objects.filter(id=request.data['user']).first()
+            if user:
+                serializer = AppraisalsSerializer(data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse({'message':'Appraissal for th employee saved successfully'}, status=200)
+                return Response(serializer.errors)
+            return JsonResponse({'message':'No such Employee in the Database'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def get(self, request):
+        appraisals = Appraisals.objects.all()
+        serializer = AppraisalsSerializer(appraisals, many=True)
+        return Response(serializer.data)
+
+    def put(self, request):
+        if request.data:
+            appraisals = Appraisals.objects.filter(id=request.data['id']).first()
+            if appraisals:
+                serializer = AppraisalsSerializer(appraisals, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse({'message':'Appraisal updated successfully'}, status=200)
+                return Response(serializer.errors)
+            return JsonResponse({'message':'Appraisals Invalid'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def delete(self, request):
+        if request.data:
+            appraisals = Appraisals.objects.filter(id=request.data['id']).first()
+            if appraisals:
+                appraisals.delete()
+                return JsonResponse({'message':'Appraisals Deleted Successfully'}, status=200)
+            return JsonResponse({'message':'Invalid Appraisal cannot be delete'}, status=400)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+class EmployeeAppraisals(APIView):
+    def get(self, request, user_id):
+        user = User.objects.filter(id=user_id).first()
+        if user:
+            appraisals = Appraisals.objects.filter(user=user).all()
+            serializer = AppraisalsSerializer(appraisals, many=True)
+            return Response(serializer.data)
+        return JsonResponse({'message':'Invalid User'}, status=400)

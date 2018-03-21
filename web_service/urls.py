@@ -11,7 +11,7 @@ urlpatterns=[
 
 	url(r'^forgot_password$', views.forgot_password, name='forgot_password'),
 
-	url(r'^add_employee', views.AddEmployeeView.as_view(), name='add_employee'),
+	url(r'^employee$', views.AddEmployeeView.as_view(), name='add_employee'),
 
 	url(r'^approve_employee', views.ApproveEmployee.as_view(), name='approve_employee'),
 
@@ -55,7 +55,7 @@ urlpatterns=[
 	url(r'^leaves$', views.MainLeaveView.as_view(), name='leave_assign'),
 	url(r'^leaves/applied$', views.AppliedLeaveViewAPI.as_view(), name='applied_leaves'),
 	url(r'^leave/approve$', views.approve_leave, name='leave_approve'),
-	url(r'^leave/history/(?P<user_id>[0-9]+)', views.AppliedLeaveUserHistory.as_view(), name="leave_histody"),
+	url(r'^leave/history/(?P<user_id>[0-9]+)', views.AppliedLeaveUserHistory.as_view(), name="leave_history"),
 	url(r'^leave/balance/(?P<user_id>[0-9]+)$', views.EmployeeBalanceLeave.as_view(), name='balance_leave'),
 	url(r'^leave/info/(?P<user_id>[0-9]+)/(?P<month>[0-9]+)/(?P<year>[0-9]+)$', views.LeaveUserInfo.as_view(), name='leave_info'),
 	url(r'^leave/manager$', views.ManagerLeaveView.as_view(), name='leave_info_manager'),
@@ -90,5 +90,9 @@ urlpatterns=[
 	url(r'^vendors/shipping_address/(?P<vendor_id>[0-9]+)$', views.ShippingAddressVendors.as_view(), name='individual_vendor_shipping'),
 	url(r'^vendors/shipping_address', views.ShippingAddressView.as_view(), name='vendors_shipping_address'),
 	url(r'^place_order$', views.PlacingOrders.as_view(), name='place_orders'),
+
+	#############Appraisals#########################
+	url(r'^appraisal$', views.AppraisalsView.as_view(), name='appraisal'),
+	url(r'^appraisal/(?P<user_id>[0-9]+)', views.EmployeeAppraisals.as_view(), name='appraisal_user'),
 
 ]

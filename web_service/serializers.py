@@ -739,6 +739,12 @@ class AddNewEmployeeSerializer(serializers.ModelSerializer):
             'mother_name',
             'pan_card'
         ]
+
+class EmployeeListSerializer(serializers.ModelSerializer):
+    user_role = RoleSerializer()
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'username', 'user_role']
 ##########-------------------------HR Payrole-----------##############
 
 class HrUserSerializer(serializers.ModelSerializer):
@@ -812,4 +818,18 @@ class SalaryRequestedSerializer(serializers.ModelSerializer):
 class SalaryRequestPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalaryRequest
+        fields = '__all__'
+
+
+##################---Appraisals---------##################
+class AppraisalsSerializer(serializers.ModelSerializer):
+    self_qoute = serializers.CharField(required=False, allow_blank=True)
+    manager_qoute = serializers.CharField(required=False, allow_blank=True)
+    manager_rating = serializers.FloatField(required=False)
+    self_rating = serializers.FloatField(required=False)
+    summary = serializers.CharField(required=False, allow_blank=True)
+    status = serializers.BooleanField(required=False)
+
+    class Meta:
+        model = Appraisals
         fields = '__all__'

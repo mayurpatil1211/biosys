@@ -449,3 +449,17 @@ class SalaryRequest(models.Model):
         self.net_salary_paybale = self.net_salary-self.deduction
         super(SalaryRequest, self).save(*args, **kwarg)
 
+###########-----appraisals-----######
+class Appraisals(models.Model):
+    user = models.ForeignKey(User, on_delete='CASCADE', related_name='appraisals')
+    self_qoute = models.CharField(max_length=200, null=True, blank=True)
+    manager_qoute = models.CharField(max_length=200, null=True, blank=True)
+    manager_rating = models.FloatField(null=True, default=0)
+    self_rating = models.FloatField(null=True, default=0)
+    summary = models.CharField(max_length=200, null=True, default=0)
+    status = models.BooleanField(default=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.first_name+' '+self.self_rating
