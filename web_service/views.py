@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from django.core.mail import EmailMultiAlternatives
+
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
@@ -108,11 +110,18 @@ class AddEmployeeView(APIView):
                         )
                     user_role.save()
                     request.data["user"] = user_save.id
+                    request.data["approved"] = True
                     if user_save:
                         try:
                             serializer = AddNewEmployeeSerializer(data=request.data)
                             if serializer.is_valid():
                                 serializer.save()
+                                subject, from_email, to = 'Regarding Account Creation- DscignBiosys', 'mayurbppatil@gmail.com', email
+                                text_content = 'This is an important message.'
+                                html_content = '<p>This is an important message.</p><br><p>Your Account in Dscign Biosys has been Created Successfully, And your <strong>User ID</strong>- '+email+'</p><br/><br/><strong>Note: </strong> Password will receive on your register Mail ID shortly.'
+                                msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                                msg.attach_alternative(html_content, "text/html")
+                                msg.send()
                                 return JsonResponse({'message':'User Added Successfully'}, status=200)
                         except(Exception)as e:
                             user_save.delete()
@@ -164,7 +173,9 @@ class AddEmployeeView(APIView):
         users = User.objects.filter(id__in = user_ids).filter(employee_other_details__approved=True)
         # Herd.objects.annotate(animalCount=Count('animals')).filter(Q(animals__species_type='Cow')|Q(animalCount=0))
         serializer = EmployeeListSerializer(users, many=True)
+        print(serializer)
         return Response(serializer.data)
+        # return JsonResponse({'message':'User Updated Successfully'}, status=200) 
 
             
 
@@ -173,11 +184,8 @@ class ApproveEmployee(APIView):
     def get(self, request):
         employees = Employees.objects.filter(approved=False)
         employee_ids = [i.user.id for i in employees]
-        print(employee_ids)
         users = User.objects.filter(id__in=employee_ids)
-        print(users)
         serializer = ApproveEmployeesSerializer(users, many=True)
-        print(serializer.data)
         return Response(serializer.data)
 
     def post(self, request):
@@ -189,10 +197,18 @@ class ApproveEmployee(APIView):
             user_obj = User.objects.filter(id=employee.user.id).first()
             password = request.data.get('password', None)
             if password:
+                new_password = password
                 user_obj.set_password(password)
             else:
+                new_password = 'dscignBiosys'
                 user_obj.set_password('dscignBiosys')
             user_obj.save()
+            subject, from_email, to = 'Regarding Password Creation- DscignBiosys', 'mayurbppatil@gmail.com', employee.email
+            text_content = 'This is an important message.'
+            html_content = '<p>This is an important message.</p><br><p>Your Password for the Dscign Biosys Account has been Created Successfully, And your <strong>User ID</strong>- '+employee.email+'</p><br/><strong>Password: '+new_password+'</strong>.'
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
             return JsonResponse({'message':'User activated, and password has set for the user account'}, status=200)
         return JsonResponse({'message':'Bad Request'}, status=400)
 

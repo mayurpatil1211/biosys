@@ -30,6 +30,12 @@ DEBUG = True
 ALLOWED_HOSTS = ['dscignbiosys.herokuapp.com', '127.0.0.1', '192.168.1.104']
 
 
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "mayurbppatil@gmail.com"
+EMAIL_HOST_PASSWORD = 'mayur@12345'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 # Application definition
 
 INSTALLED_APPS = [

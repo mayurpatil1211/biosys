@@ -725,6 +725,7 @@ class AddNewEmployeeSerializer(serializers.ModelSerializer):
     father_name = serializers.CharField(required=False, allow_blank=True)
     mother_name = serializers.CharField(required=False, allow_blank=True)
     pan_card = serializers.CharField(required=False, allow_blank=True)
+    approved = serializers.BooleanField(required=False, write_only=True)
 
     class Meta:
         model = Employees
@@ -737,20 +738,24 @@ class AddNewEmployeeSerializer(serializers.ModelSerializer):
             'pincode',
             'father_name',
             'mother_name',
-            'pan_card'
+            'pan_card',
+            'approved'
         ]
 
 class EmployeeListSerializer(serializers.ModelSerializer):
     user_role = RoleSerializer()
+    employee_other_details = AddNewEmployeeSerializer()
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'user_role']
+        fields = ['id', 'first_name', 'last_name', 'username', 'user_role', 'employee_other_details']
 ##########-------------------------HR Payrole-----------##############
 
 class HrUserSerializer(serializers.ModelSerializer):
+    user_role = RoleSerializer()
+    employee_other_details = AddNewEmployeeSerializer()
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'user_role']
+        fields = ['id', 'first_name', 'last_name', 'username', 'user_role', 'employee_other_details']
 
 
 ##########----------------------Bank Details----------###############

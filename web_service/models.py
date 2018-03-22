@@ -35,7 +35,7 @@ class Employees(models.Model):
     email = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=200, null=True, blank=True)
     city = models.CharField(max_length=50, null=True, blank=True)
-    pincode = models.IntegerField(null=True)
+    pincode = models.IntegerField(null=True, blank=True)
     father_name = models.CharField(max_length=50, null=True, blank=True)
     mother_name = models.CharField(max_length=50, null=True, blank=True)
     pan_card = models.CharField(max_length=100,  null=True, blank=True)
