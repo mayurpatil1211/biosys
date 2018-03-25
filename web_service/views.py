@@ -94,6 +94,7 @@ class AddEmployeeView(APIView):
             role = request.data.get('designation', None)
             department = request.data.get('department', None)
             phone_number = request.data.get('phone_no', None)
+
             if email:
                 user = User.objects.filter(Q(username=email) | Q(email=email)).first()
                 if user is None:
@@ -588,64 +589,116 @@ class EmployeeBalanceLeave(APIView):
 			return JsonResponse({'message': 'User Not Found'}, status=405)
 
 
-@api_view(['POST'])
-def apply_leave(request):
-    if request.data:
-        user = User.objects.filter(id=request.data['user']).first()
-        try:
-            reason = request.data['reason']
-        except(KeyError, AttributeError)as e:
-            reason = " "
-
-        try:
-           number_of_days =  request.data['number_of_days']
-        except(KeyError, AttributeError)as e:
-            number_of_days = None
-
-        try:
-           type_of_leave =  request.data['type_of_leave']
-        except(KeyError, AttributeError)as e:
-            type_of_leave = None
-
-        try:
-           leave_from =  request.data['leave_from']
-        except(KeyError, AttributeError)as e:
-            leave_from = None
-
-        try:
-           to_leave =  request.data['to_leave']
-        except(KeyError, AttributeError)as e:
-            to_leave = None
-
-        if user:
+class ApplyLeave(APIView):
+    def post(self, request):
+        if request.data:
+            user = User.objects.filter(id=request.data['user']).first()
             try:
-                apply_leave_instance = AppliedLeave(
-                    user=user,
-                    type_of_leave=type_of_leave,
-                    leave_from=leave_from,
-                    to_leave=to_leave,
-                    number_of_days=number_of_days,
-                    reason = reason,
-                    appliedBy=user
-                )
-                apply_leave_instance.save()
-            except(KeyError, AttributeError, TypeError)as e:
-                pass
-            return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
-        return JsonResponse({'message': 'User Not Found'}, status=405)
-    return JsonResponse({'message': 'Bad Request'}, status=400)
+                reason = request.data['reason']
+            except(KeyError, AttributeError)as e:
+                reason = " "
+
+            try:
+               number_of_days =  request.data['number_of_days']
+            except(KeyError, AttributeError)as e:
+                number_of_days = None
+
+            try:
+               type_of_leave =  request.data['type_of_leave']
+            except(KeyError, AttributeError)as e:
+                type_of_leave = None
+
+            try:
+               leave_from =  request.data['leave_from']
+            except(KeyError, AttributeError)as e:
+                leave_from = None
+
+            try:
+               to_leave =  request.data['to_leave']
+            except(KeyError, AttributeError)as e:
+                to_leave = None
+
+            if user:
+                try:
+                    apply_leave_instance = AppliedLeave(
+                        user=user,
+                        type_of_leave=type_of_leave,
+                        leave_from=leave_from,
+                        to_leave=to_leave,
+                        number_of_days=number_of_days,
+                        reason = reason,
+                        appliedBy=user
+                    )
+                    apply_leave_instance.save()
+                except(KeyError, AttributeError, TypeError)as e:
+                    pass
+                return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
+            return JsonResponse({'message': 'User Not Found'}, status=405)
+        return JsonResponse({'message': 'Bad Request'}, status=400)
+
+
+# @api_view(['POST'])
+# def apply_leave(request):
+#     if request.data:
+#         user = User.objects.filter(id=request.data['user']).first()
+#         try:
+#             reason = request.data['reason']
+#         except(KeyError, AttributeError)as e:
+#             reason = " "
+
+#         try:
+#            number_of_days =  request.data['number_of_days']
+#         except(KeyError, AttributeError)as e:
+#             number_of_days = None
+
+#         try:
+#            type_of_leave =  request.data['type_of_leave']
+#         except(KeyError, AttributeError)as e:
+#             type_of_leave = None
+
+#         try:
+#            leave_from =  request.data['leave_from']
+#         except(KeyError, AttributeError)as e:
+#             leave_from = None
+
+#         try:
+#            to_leave =  request.data['to_leave']
+#         except(KeyError, AttributeError)as e:
+#             to_leave = None
+
+#         if user:
+#             try:
+#                 apply_leave_instance = AppliedLeave(
+#                     user=user,
+#                     type_of_leave=type_of_leave,
+#                     leave_from=leave_from,
+#                     to_leave=to_leave,
+#                     number_of_days=number_of_days,
+#                     reason = reason,
+#                     appliedBy=user
+#                 )
+#                 apply_leave_instance.save()
+#             except(KeyError, AttributeError, TypeError)as e:
+#                 pass
+#             return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
+#         return JsonResponse({'message': 'User Not Found'}, status=405)
+#     return JsonResponse({'message': 'Bad Request'}, status=400)
 
 @api_view(['PUT'])
-def apply_leave(request):
+def apply_leave_update(request):
     if request.data:
         _id = request.data.get('id', None)
-        user = User.objects.filter(id=request.data['user']).first()
-        update_leave = AppliedLeave.objects.filter(id=_id).first
+        type_of_leave = request.data.get('type_of_leave', None)
+        leave_from = request.data.get('leave_from', None)
+        to_leave = request.data.get('to_leave', None)
+        reason = request.data.get('reason', None)
+        # user = User.objects.filter(id=request.data['user']).first()
+        update_leave = AppliedLeave.objects.filter(id=_id).first()
         if update_leave:
-            update_leave.type_of_leave = request.data['type_of_leave']
-            update_leave.leave_from = request.data['leave_from']
-            update_leave.to_leave = request.data['to_leave']
-            update_leave.reason = request.data['reason']
+            update_leave.type_of_leave = type_of_leave
+            update_leave.leave_from = leave_from
+            update_leave.to_leave = to_leave
+            update_leave.reason = reason
             update_leave.save()
             return JsonResponse({'message': 'Leave Updated Successfully'}, status=200)
         return JsonResponse({'message': 'Invalid Leave'}, status=405)

@@ -51,9 +51,12 @@ urlpatterns=[
 
 
 	url(r'^holidays$', views.HolidayView.as_view(), name='holidays'),
-	url(r'^leave/apply$', views.apply_leave, name='apply_leave'),
+	url(r'^leave/apply$', views.ApplyLeave.as_view(), name='apply_leave'),
 	url(r'^leaves$', views.MainLeaveView.as_view(), name='leave_assign'),
 	url(r'^leaves/applied$', views.AppliedLeaveViewAPI.as_view(), name='applied_leaves'),
+	
+	url(r'^leaves/applied/update$', views.apply_leave_update, name='applied_leaves_update'),
+
 	url(r'^leave/approve$', views.approve_leave, name='leave_approve'),
 	url(r'^leave/history/(?P<user_id>[0-9]+)', views.AppliedLeaveUserHistory.as_view(), name="leave_history"),
 	url(r'^leave/balance/(?P<user_id>[0-9]+)$', views.EmployeeBalanceLeave.as_view(), name='balance_leave'),

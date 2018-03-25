@@ -159,12 +159,23 @@ class AppliedLeaveSerializer(serializers.ModelSerializer):
     number_of_days = serializers.FloatField(required=False)
     reason = serializers.CharField(required=False, allow_blank=True)
     appliedOn = serializers.DateField(required=False)
+    appliedBy = serializers.DateField(required=False)
     actionOn = serializers.DateTimeField(required=False)
     declined = serializers.BooleanField(required=False)
+    status = serializers.BooleanField(required=False)
     
     class Meta:
         model = AppliedLeave
-        fields = ('id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn')
+        fields = '__all__'
+# reason
+# status
+# appliedBy
+# approvedBy
+# appliedOn
+# actionOn
+# declined
+
+# ('id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn', 'declined', 'actionOn')
 
 
 class LeavesSerializer(serializers.ModelSerializer):
