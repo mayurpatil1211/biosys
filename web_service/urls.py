@@ -96,6 +96,7 @@ urlpatterns=[
 
 	#############Appraisals#########################
 	url(r'^appraisal$', views.AppraisalsView.as_view(), name='appraisal'),
-	url(r'^appraisal/(?P<user_id>[0-9]+)', views.EmployeeAppraisals.as_view(), name='appraisal_user'),
+	url(r'^appraisal/(?P<user_id>[0-9]+)$', views.EmployeeAppraisals.as_view(), name='appraisal_user'),
+	url(r'^appraisal/(?P<user_id>[0-9]+)/(?P<year>[0-9]{4})', views.EmployeeAppraisalsYear.as_view(), name='appraisal_user_year'),
 
 ]

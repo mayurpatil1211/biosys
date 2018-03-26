@@ -1909,3 +1909,12 @@ class EmployeeAppraisals(APIView):
             serializer = AppraisalsSerializer(appraisals, many=True)
             return Response(serializer.data)
         return JsonResponse({'message':'Invalid User'}, status=400)
+
+class EmployeeAppraisalsYear(APIView):
+    def get(self, request, user_id, year):
+        user = User.objects.filter(id=user_id).first()
+        if user:
+            appraisals = Appraisals.objects.filter(user=user, year=year).first()
+            serializer = AppraisalsSerializer(appraisals)
+            return Response(serializer.data)
+        return JsonResponse({'message':'Invalid User'}, status=400)
