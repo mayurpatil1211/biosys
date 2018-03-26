@@ -457,7 +457,7 @@ class Appraisals(models.Model):
     manager_rating = models.FloatField(null=True, default=0)
     self_rating = models.FloatField(null=True, default=0)
     summary = models.CharField(max_length=200, null=True, default=0)
-    year = models.IntegerField(null=True)
+    year = models.CharField(max_length=10, null=True)
     status = models.BooleanField(default=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)

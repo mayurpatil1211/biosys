@@ -844,7 +844,7 @@ class AppraisalsSerializer(serializers.ModelSerializer):
     manager_rating = serializers.FloatField(required=False)
     self_rating = serializers.FloatField(required=False)
     summary = serializers.CharField(required=False, allow_blank=True)
-    year = serializers.IntegerField(required=False)
+    year = serializers.CharField(required=False)
     status = serializers.BooleanField(required=False)
 
     class Meta:
