@@ -113,7 +113,7 @@ class Holiday(models.Model):
 
 
 class Leaves(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_assigned_leaves')
     balance_sick_leave = models.FloatField()
     total_sick_leave = models.FloatField()
     balance_casual_leave = models.FloatField()
@@ -145,7 +145,7 @@ class AppliedLeave(models.Model):
     number_of_days = models.FloatField(max_length=5)
     reason = models.CharField(max_length=200, null=True,blank=True)
     status = models.BooleanField(default=False)
-    appliedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users_leave')
+    appliedBy = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='users_leave', null=True)
     approvedBy = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='approved_by',blank=True)
     appliedOn = models.DateField(auto_now_add=True, null=False)
     actionOn = models.DateTimeField(null=True,blank=True)
@@ -154,8 +154,8 @@ class AppliedLeave(models.Model):
     def save(self, *args, **kwarg):
         start_date = datetime.datetime.strptime(str(self.leave_from), "%Y-%m-%d")
         end_date = datetime.datetime.strptime(str(self.to_leave), "%Y-%m-%d")
-        diff = abs(((end_date-start_date)+1).days)
-        print(diff)
+        diff = abs(((end_date-start_date)+datetime.timedelta(days=1)).days)
+        self.appliedBy = self.user
         self.number_of_days = diff
         super(AppliedLeave, self).save(*args, **kwarg)
 

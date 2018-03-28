@@ -588,101 +588,20 @@ class EmployeeBalanceLeave(APIView):
 		else:
 			return JsonResponse({'message': 'User Not Found'}, status=405)
 
-
+# AppliedLeaveSerializer
 class ApplyLeave(APIView):
     def post(self, request):
         if request.data:
             user = User.objects.filter(id=request.data['user']).first()
-            try:
-                reason = request.data['reason']
-            except(KeyError, AttributeError)as e:
-                reason = " "
-
-            try:
-               number_of_days =  request.data['number_of_days']
-            except(KeyError, AttributeError)as e:
-                number_of_days = None
-
-            try:
-               type_of_leave =  request.data['type_of_leave']
-            except(KeyError, AttributeError)as e:
-                type_of_leave = None
-
-            try:
-               leave_from =  request.data['leave_from']
-            except(KeyError, AttributeError)as e:
-                leave_from = None
-
-            try:
-               to_leave =  request.data['to_leave']
-            except(KeyError, AttributeError)as e:
-                to_leave = None
-
-            if user:
-                try:
-                    apply_leave_instance = AppliedLeave(
-                        user=user,
-                        type_of_leave=type_of_leave,
-                        leave_from=leave_from,
-                        to_leave=to_leave,
-                        number_of_days=number_of_days,
-                        reason = reason,
-                        appliedBy=user
-                    )
-                    apply_leave_instance.save()
-                except(KeyError, AttributeError, TypeError)as e:
-                    pass
-                return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
-            return JsonResponse({'message': 'User Not Found'}, status=405)
+            if user and user.user_assigned_leaves.filter(user=user).first():
+                print(user.user_assigned_leaves.filter(user=user).first())
+                serializer = ApplyLeaveSerializer(data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
+                return Response(serializer.errors)
+            return JsonResponse({'message': 'Either Employee Not Found or Leaves Not assigned to the Employee'}, status=404)
         return JsonResponse({'message': 'Bad Request'}, status=400)
-
-
-# @api_view(['POST'])
-# def apply_leave(request):
-#     if request.data:
-#         user = User.objects.filter(id=request.data['user']).first()
-#         try:
-#             reason = request.data['reason']
-#         except(KeyError, AttributeError)as e:
-#             reason = " "
-
-#         try:
-#            number_of_days =  request.data['number_of_days']
-#         except(KeyError, AttributeError)as e:
-#             number_of_days = None
-
-#         try:
-#            type_of_leave =  request.data['type_of_leave']
-#         except(KeyError, AttributeError)as e:
-#             type_of_leave = None
-
-#         try:
-#            leave_from =  request.data['leave_from']
-#         except(KeyError, AttributeError)as e:
-#             leave_from = None
-
-#         try:
-#            to_leave =  request.data['to_leave']
-#         except(KeyError, AttributeError)as e:
-#             to_leave = None
-
-#         if user:
-#             try:
-#                 apply_leave_instance = AppliedLeave(
-#                     user=user,
-#                     type_of_leave=type_of_leave,
-#                     leave_from=leave_from,
-#                     to_leave=to_leave,
-#                     number_of_days=number_of_days,
-#                     reason = reason,
-#                     appliedBy=user
-#                 )
-#                 apply_leave_instance.save()
-#             except(KeyError, AttributeError, TypeError)as e:
-#                 pass
-#             return JsonResponse({'message': 'Leave Applied Successfully'}, status=200)
-#         return JsonResponse({'message': 'User Not Found'}, status=405)
-#     return JsonResponse({'message': 'Bad Request'}, status=400)
 
 @api_view(['PUT'])
 def apply_leave_update(request):

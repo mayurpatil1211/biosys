@@ -137,13 +137,14 @@ class AppliedLeaveListSerializer(serializers.ModelSerializer):
     to_leave = serializers.DateField(required=False)
     number_of_days = serializers.FloatField(required=False)
     reason = serializers.CharField(required=False, allow_blank=True)
+    status = serializers.BooleanField(required=False)
     appliedOn = serializers.DateField(required=False)
     actionOn = serializers.DateTimeField(required=False)
     declined = serializers.BooleanField(required=False)
 
     class Meta:
         model = AppliedLeave
-        fields = ['id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn', 'actionOn']
+        fields = ['id', 'user', 'type_of_leave', 'leave_from', 'to_leave', 'number_of_days', 'reason', 'appliedOn','status','actionOn', 'declined']
 
 
 class HolidaySerializer(serializers.ModelSerializer):
@@ -153,6 +154,22 @@ class HolidaySerializer(serializers.ModelSerializer):
 
 
 class AppliedLeaveSerializer(serializers.ModelSerializer):
+    type_of_leave = serializers.CharField(required=False, allow_blank=True)
+    leave_from = serializers.DateField(required=False)
+    to_leave = serializers.DateField(required=False)
+    number_of_days = serializers.FloatField(required=False)
+    reason = serializers.CharField(required=False, allow_blank=True)
+    appliedOn = serializers.DateField(required=False)
+    appliedBy = serializers.DateField(required=False)
+    actionOn = serializers.DateTimeField(required=False)
+    declined = serializers.BooleanField(required=False)
+    status = serializers.BooleanField(required=False)
+    
+    class Meta:
+        model = AppliedLeave
+        fields = '__all__'
+
+class ApplyLeaveSerializer(serializers.ModelSerializer):
     type_of_leave = serializers.CharField(required=False, allow_blank=True)
     leave_from = serializers.DateField(required=False)
     to_leave = serializers.DateField(required=False)
