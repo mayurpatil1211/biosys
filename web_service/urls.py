@@ -7,7 +7,9 @@ urlpatterns=[
 	url(r'userLogin', views.login, name='userlogin'),
 	url(r'^logout/$', views.logout, name='logout'),
 	
-	url(r'^attendance/', views.AttendanceCreate.as_view()),
+	url(r'^attendance/$', views.AttendanceCreate.as_view()),
+
+	url(r'^attendance/(?P<user>[0-9]+)/(?P<year>[0-9]+)/(?P<month>[0-9]+)$', views.MonthAttendanceView.as_view(), name='emplyee_attendance'),
 
 	url(r'^forgot_password$', views.forgot_password, name='forgot_password'),
 
@@ -22,6 +24,8 @@ urlpatterns=[
 	url(r'^salary/(?P<user>[0-9]+)$', views.SalaryIndividual.as_view(), name='individual_salary'),
 	url(r'^salary_paid/(?P<user_id>[0-9]+)$', views.SalaryRequestedIndividual.as_view(), name='salary_requested_history'),
 	url(r'^salary', views.SalaryView.as_view(), name='salary'),
+
+	url(r'^generate_payslip/(?P<user>[0-9]+)/(?P<year>[0-9]+)/(?P<month>[0-9]+)$', views.generate_payslip, name='generate_payslip'),
 
 
 
@@ -98,5 +102,7 @@ urlpatterns=[
 	url(r'^appraisal$', views.AppraisalsView.as_view(), name='appraisal'),
 	url(r'^appraisal/(?P<user_id>[0-9]+)$', views.EmployeeAppraisals.as_view(), name='appraisal_user'),
 	url(r'^appraisal/(?P<user_id>[0-9]+)/(?P<year>[0-9]{4})', views.EmployeeAppraisalsYear.as_view(), name='appraisal_user_year'),
+
+
 
 ]

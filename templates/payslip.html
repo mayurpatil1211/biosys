@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+    <title>PAYSLIP</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        .td{
+            padding-left: 10%;
+        }
+        .tdd{
+            padding-left: 25%
+        }
+        .table_row{
+            padding-left: 20px;
+        }
+        .total_bill{
+            margin-top: 50px;
+        }
+        .table_cells{
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="col-md-12 col-md-offset-5">
+            <h1>Payslip</h1>
+        </div>
+        <br />
+        <div>
+            <b>To.</b>
+            <table border="0px">
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <td class="table_cells">Name : </td>
+                        <td class="td table_cells">
+                        {% if user.first_name %}
+                        {{user.first_name}}&nbsp;&nbsp;&nbsp;&nbsp;{{user.last_name}}</td>
+                        {% else %}
+                        <span>Not Provided</span>
+                        {% endif%}
+                    </tr>
+                    <tr>
+                        <td class="table_cells">Address : </td>
+                        <td class="td table_cells">
+                            {% if user.employee_details.address %}
+                            {{user.employee_details.address}},&nbsp;&nbsp;
+                            {% endif%}
+
+                            {% if user.employee_details.city %}
+                            {{user.employee_details.city}},&nbsp;&nbsp;
+                            {% endif%}
+
+                            {% if user.employee_details.pincode %}
+                            {{user.employee_details.pincode}}
+                            {% endif%}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="table_cells">Phone Number : </td>
+                        <td class="td table_cells">
+                            {% if user.employee_details.address %}
+                            {{user.employee_details.phone_no}}
+                            {% else %}
+                            <span>Not Provided</span>
+                            {% endif%}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="table_cells">Email : </td>
+                        <td class="td table_cells">
+                        {% if user.employee_details.email %}
+                        {{user.employee_details.email}}
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div><br />
+
+        <div>
+            <b>Bank Details</b>
+            <table border="0px">
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <td class="table_cells">Bank Name : </td>
+                        <td class="td table_cells">
+                        {% if user.employee_bank.bank_name %}
+                        {{user.employee_bank.bank_name}}
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                    </td>
+                    </tr>
+                    <tr>
+                        <td class="table_cells">Bank Address : </td>
+                        <td class="td table_cells">
+                        {% if user.employee_bank.bank_address %}
+                        {{user.employee_bank.bank_address}} 
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="table_cells">IFSC code : </td>
+                        <td class="td table_cells">
+                        {% if user.employee_bank.ifsc_code %}
+                        {{user.employee_bank.ifsc_code}} 
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                    </td>
+                    </tr>
+                    <tr>
+                        <td class="table_cells">Account Type : </td>
+                        <td class="td table_cells">
+                        {% if user.employee_bank.account_type %}
+                        {{user.employee_bank.account_type}} 
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="table_cells">Phone Number : </td>
+                        <td class="td table_cells">
+                            {% if user.employee_bank.phone_no %}
+                        {{user.employee_bank.phone_no}} 
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                    </td>
+                    </tr>
+                    <tr>
+                        <td class="table_cells">BMICR code : </td>
+                        <td class="td table_cells">
+                        {% if user.employee_bank.bmicr_code %}
+                        {{user.employee_bank.bmicr_code}} 
+                        {% else %}
+                            <span>Not Provided</span>
+                        {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div><br />
+
+        <div>
+            <table class="table table-bordered" border="0.5px">
+                <h4>Salary Details</h4>
+                <thead>
+                    <th class="table_cells">Basic</th>
+                    <th class="table_cells">HRA</th>
+                    <th class="table_cells">Conveyance Allowance</th>
+                    <th class="table_cells">Deduction</th>
+                    <th class="table_cells">Misc Allowance</th>
+                    <th class="table_cells">Proffesional_tax</th>
+                    <th class="table_cells">Net Salary</th>
+                    <th class="table_cells">Net Salary Paybale</th>
+                    <th class="table_cells">Credited On</th>
+                </thead>
+<!-- basic
+hra
+conveyance_allowance
+deduction
+misc_allowance
+proffesional_tax
+net_salary
+net_salary_paybale
+credited_on -->
+                <tbody>
+                    <tr>
+                        <td class="table_cells">
+                            {% if basic %}
+                            {{basic}}
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                        <td class="table_cells">
+                            {% if hra %}
+                            {{hra}}
+                            {% else %}
+                            --
+                            {% endif %} 
+                            
+                        </td>
+                        <td class="table_cells">
+                            {% if conveyance_allowance %}
+                            {{conveyance_allowance}}
+                            {% else %}
+                            --
+                            {% endif %} 
+                        </td>
+                        <td class="table_cells">
+                            {% if deduction %}
+                            {{deduction}}
+                            {% else %}
+                            --
+                            {% endif %} 
+                            
+                        </td>
+                        <td class="table_cells">
+                            {% if misc_allowance %}
+                            {{misc_allowance}}
+                            {% else %}
+                            --
+                            {% endif %} 
+                        </td>
+                        <td class="table_cells">
+                             {% if proffesional_tax %}
+                            {{proffesional_tax}}
+                            {% else %}
+                            --
+                            {% endif %} 
+                        </td>
+                        <td class="table_cells">
+                            {% if net_salary %}
+                            {{net_salary}}
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                        <td class="table_cells">
+                            {% if net_salary_paybale %}
+                            {{net_salary_paybale}}
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                        <td class="table_cells">
+                            {% if credited_on %}
+                            {{credited_on}}
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-10 col-md-offset-5">
+            <span><b>Note : </b> This Slip Is electronic generated, No need of Signature</span>
+        </div>
+    </div>
+</body>
+
+</html>

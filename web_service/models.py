@@ -30,7 +30,7 @@ class Role(models.Model):
 
 
 class Employees(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_other_details')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_details')
     phone_no = models.CharField(max_length=13, null=True, blank=True)
     email = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=200, null=True, blank=True)
@@ -448,6 +448,8 @@ class SalaryRequest(models.Model):
         # self.deduction = self.calculate_deduction
         self.net_salary_paybale = self.net_salary-self.deduction
         super(SalaryRequest, self).save(*args, **kwarg)
+
+
 
 ###########-----appraisals-----######
 class Appraisals(models.Model):

@@ -24,7 +24,12 @@ from datetime import datetime
 from time import gmtime, strftime
 from django.core.mail import send_mail
 
+from django.http import HttpResponse
+from django.template.loader import get_template
+from dscignBiosys.utils import render_to_pdf
+
 # Create your views here.
+
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
@@ -225,9 +230,16 @@ class AttendanceCreate(APIView):
         elif request.data['type'] == 2:
             attendance = Attendance.objects.filter(user=user).order_by('-id')[0]
             attendance.clock_out = timezone.now()
-            print(attendance.clock_out)
             attendance.save()
             return JsonResponse({"message": "clocked out"}, status=200)
+
+
+class MonthAttendanceView(APIView):
+    permission_classes = (AllowAny,)
+    def get(self, request, user, year, month):
+        attendance = Attendance.objects.filter(clock_in__month=month, clock_in__year=year, user=user).all()
+        serializer = AttendanceSerializer(attendance, many=True)
+        return Response(serializer.data)
 
 
 class ActivityAddList(APIView):
@@ -1837,3 +1849,23 @@ class EmployeeAppraisalsYear(APIView):
             serializer = AppraisalsSerializer(appraisals)
             return Response(serializer.data)
         return JsonResponse({'message':'Invalid User'}, status=400)
+
+
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def generate_payslip(request, user, year, month):
+    # user = request.data.get('user', None)
+    # month = request.data.get('month', None)
+    # year = request.data.get('year', None)
+    if user and month and year:
+        template = get_template('payslip.html')
+        salary_info = SalaryRequest.objects.filter(user=user, salary_year=year, salary_month=month).first()
+        serializer = PayslipSerializer(salary_info)
+        pdf = render_to_pdf('payslip.html', serializer.data)
+        if pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            filename = "Payslip_%s.pdf"%("12234")
+            content = "attachment; filename='%s'" %(filename)
+            response['Content-Disposition'] = content
+            return response
+    return JsonResponse({'message':'Data not enough to process your request'}, status=400)

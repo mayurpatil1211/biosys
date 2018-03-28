@@ -26,6 +26,11 @@ class ActivityFarmerIdSerializer(serializers.ModelSerializer):
         fields = ['id']
 
 
+class AttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attendance
+        fields = '__all__'
+
 class ActivitySerializer(serializers.ModelSerializer):
     start_time = serializers.TimeField(format="%H:%M", required=False)
     end_time = serializers.TimeField(format="%H:%M", required=False)
@@ -852,6 +857,48 @@ class SalaryRequestPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalaryRequest
         fields = '__all__'
+
+class UserPayslipSerializer(serializers.ModelSerializer):
+    user_role = RoleSerializer()
+    employee_details = AddNewEmployeeSerializer()
+    employee_bank = BankDetails()
+
+    class Meta:
+        model = User
+        fields = ['id','username', 'first_name', 'email', 'user_role', 'employee_details','employee_bank']
+
+class PayslipSerializer(serializers.ModelSerializer):
+    user = UserPayslipSerializer()
+    basic = serializers.FloatField(required=False)
+    hra = serializers.FloatField(required=False)
+    conveyance_allowance = serializers.FloatField(required=False)
+    deduction = serializers.FloatField(required=False)
+    salary_month = serializers.IntegerField(required=False)
+    salary_year = serializers.IntegerField(required=False)
+    misc_allowance = serializers.FloatField(required=False)
+    proffesional_tax = serializers.FloatField(required=False)
+    net_salary = serializers.FloatField(required=False)
+    net_salary_paybale = serializers.FloatField(required=False)
+    created_on = serializers.DateTimeField(format="%Y:%m:%d")
+    credited_on = serializers.DateTimeField(format="%Y:%m:%d")
+
+    class Meta:
+        model = SalaryRequest
+        fields = [
+            'user',
+            'basic',
+            'hra',
+            'conveyance_allowance',
+            'deduction',
+            'salary_month',
+            'salary_year',
+            'misc_allowance',
+            'proffesional_tax',
+            'net_salary',
+            'net_salary_paybale',
+            'created_on',
+            'credited_on'
+        ]
 
 
 ##################---Appraisals---------##################
