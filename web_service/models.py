@@ -30,7 +30,7 @@ class Role(models.Model):
 
 
 class Employees(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_details')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_other_details')
     phone_no = models.CharField(max_length=13, null=True, blank=True)
     email = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=200, null=True, blank=True)

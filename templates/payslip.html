@@ -51,24 +51,24 @@
                     <tr>
                         <td class="table_cells">Address : </td>
                         <td class="td table_cells">
-                            {% if user.employee_details.address %}
-                            {{user.employee_details.address}},&nbsp;&nbsp;
+                            {% if user.employee_other_details.address %}
+                            {{user.employee_other_details.address}},&nbsp;&nbsp;
                             {% endif%}
 
-                            {% if user.employee_details.city %}
-                            {{user.employee_details.city}},&nbsp;&nbsp;
+                            {% if user.employee_other_details.city %}
+                            {{user.employee_other_details.city}},&nbsp;&nbsp;
                             {% endif%}
 
-                            {% if user.employee_details.pincode %}
-                            {{user.employee_details.pincode}}
+                            {% if user.employee_other_details.pincode %}
+                            {{user.employee_other_details.pincode}}
                             {% endif%}
                         </td>
                     </tr>
                     <tr>
                         <td class="table_cells">Phone Number : </td>
                         <td class="td table_cells">
-                            {% if user.employee_details.address %}
-                            {{user.employee_details.phone_no}}
+                            {% if user.employee_other_details.address %}
+                            {{user.employee_other_details.phone_no}}
                             {% else %}
                             <span>Not Provided</span>
                             {% endif%}
@@ -77,12 +77,32 @@
                     <tr>
                         <td class="table_cells">Email : </td>
                         <td class="td table_cells">
-                        {% if user.employee_details.email %}
-                        {{user.employee_details.email}}
+                        {% if user.employee_other_details.email %}
+                        {{user.employee_other_details.email}}
                         {% else %}
                             <span>Not Provided</span>
                         {% endif %}
                         </td>
+                    </tr>
+
+                    <tr>
+                        <td class="table_cells">Department : </td>
+                        <td class="td table_cells">
+                        {% if user.user_role.department %}
+                        {{user.user_role.department}}</td>
+                        {% else %}
+                        <span>Not Mentioned</span>
+                        {% endif%}
+                    </tr>
+
+                    <tr>
+                        <td class="table_cells">Designation : </td>
+                        <td class="td table_cells">
+                        {% if user.user_role.role_type %}
+                        {{user.user_role.role_type}}</td>
+                        {% else %}
+                        <span>Employee</span>
+                        {% endif%}
                     </tr>
                 </tbody>
             </table>

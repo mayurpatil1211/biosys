@@ -860,12 +860,12 @@ class SalaryRequestPutSerializer(serializers.ModelSerializer):
 
 class UserPayslipSerializer(serializers.ModelSerializer):
     user_role = RoleSerializer()
-    employee_details = AddNewEmployeeSerializer()
+    employee_other_details = AddNewEmployeeSerializer()
     employee_bank = BankDetails()
 
     class Meta:
         model = User
-        fields = ['id','username', 'first_name', 'email', 'user_role', 'employee_details','employee_bank']
+        fields = ['id','username', 'first_name', 'email', 'user_role', 'employee_other_details','employee_bank']
 
 class PayslipSerializer(serializers.ModelSerializer):
     user = UserPayslipSerializer()
