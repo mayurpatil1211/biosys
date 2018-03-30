@@ -7,6 +7,17 @@ from collections import namedtuple
 # Timeline = namedtuple('Timeline', ('tweets', 'articles'))
 
 
+
+class AddRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoleTypes
+        fields = '__all__'
+
+class AddDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = '__all__'
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role

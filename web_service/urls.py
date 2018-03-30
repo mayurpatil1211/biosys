@@ -17,6 +17,9 @@ urlpatterns=[
 
 	url(r'^approve_employee', views.ApproveEmployee.as_view(), name='approve_employee'),
 
+	url(r'^role', views.AddRoleView.as_view(), name='role'),
+	url(r'^department', views.AddDepartmentView.as_view(), name='department'),
+
 	###########Salary################
 	url(r'^salary_credited$', views.salary_credited, name='salary_credited'),
 	url(r'^salary_request$', views.salary_request, name='salary_request'),
