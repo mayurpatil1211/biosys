@@ -376,6 +376,7 @@ class OrderedItems(models.Model):
 
 class BankDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_bank')
+    account_number = models.CharField(max_length=200)
     bank_name = models.CharField(max_length=100)
     ifsc_code = models.CharField(max_length=50)
     account_type = models.CharField(max_length=20)
