@@ -42,14 +42,26 @@ def test_job():
     today = datetime.strftime(datetime.now(), "%Y-%m-%d")
     today=(datetime.strptime(today, '%Y-%m-%d')).date()
     tommorrow = today+timedelta(days=1)
-    roomStatus = RoomStatus.objects.filter(status=True).all()
-    for room in roomStatus:
-        if room.from_date<=today and today<=room.to_date:
-            room.room.status = room.room_status
-            room.room.save()
-        else:
-            room.room.status= Status.Available
-            room.room.save()
+    try:
+        roomStatus = RoomStatus.objects.filter(status=True).all()
+    except(KeyError, AttributeError, Exception)as e:
+        roomStatus =[]
+    if roomStatus:
+        for room in roomStatus:
+            if room.from_date<=today and today<=room.to_date:
+                try:
+                    room.room.status = room.room_status
+                    room.room.save()
+                except(KeyError, AttributeError, Exception)as e:
+                    pass
+            else:
+                try:
+                    room.room.status= Status.Available
+                    room.room.save()
+                except(KeyError, AttributeError, Exception)as e:
+                    pass
+    else:
+        pass
 
 
 register_events(scheduler)

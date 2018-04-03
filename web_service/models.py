@@ -52,7 +52,7 @@ class Employees(models.Model):
 class EmployeeDocument(models.Model):
     user = models.ForeignKey(User, related_name='user_document', on_delete=models.CASCADE)
     document_name = models.CharField(max_length=100, null=True, blank=True)
-    ducument_file = models.FileField(null=True, blank=True)
+    ducument_file = models.FileField(upload_to='documents/')
     document_description = models.CharField(max_length=200, null=True, blank=True)
     file_type = models.CharField(max_length=20, null=True, blank=True)
     verified = models.BooleanField(default=False)
@@ -61,6 +61,7 @@ class EmployeeDocument(models.Model):
 
     def __str__(self):
         return self.user+' '+self.document_name
+
 
 
 class Department(models.Model):

@@ -1511,7 +1511,9 @@ class SalaryView(APIView):
 
 
 ##############-------------------------Employee Document----------------------###################
+from rest_framework.parsers import MultiPartParser, FormParser
 class EmployeeDocumentView(APIView):
+    parser_classes = (MultiPartParser, )
     def post(self, request):
         if request.data:
             serializer = EmployeeDocumentSerializer(data=request.data)
