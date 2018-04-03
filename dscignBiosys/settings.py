@@ -27,7 +27,7 @@ SECRET_KEY = 'i6&f6$)m4&tpjr^zw-te#k1tl9czd4grbfs*a^udnxuhmxtrvj'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dscignbiosys.herokuapp.com', '127.0.0.1', '192.168.1.104']
+ALLOWED_HOSTS = ['dscignbiosys.herokuapp.com', '127.0.0.1', '192.168.1.104', '18.217.244.65']
 
 
 EMAIL_HOST = "smtp.gmail.com"
@@ -138,6 +138,7 @@ WSGI_APPLICATION = 'dscignBiosys.wsgi.application'
 #         'PORT': '3306',
 #     }
 # }
+
 
 DATABASES = {
     'default': {

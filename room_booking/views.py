@@ -31,7 +31,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
-from weasyprint import HTML
+# from weasyprint import HTML
 
 
 scheduler = BackgroundScheduler()

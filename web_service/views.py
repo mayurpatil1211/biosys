@@ -89,6 +89,40 @@ def forgot_password(request):
     return JsonResponse({'message':'User not Exists'}, status=400)
 
 
+###########################################################
+class AddRoleView(APIView):
+    permission_classes = (AllowAny,)
+    def post(self, request):
+        if request.data:
+            serializer = AddRoleSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({'message':'Role Added Successfully'}, status=200)
+            return Response(serializer.errors)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def get(self,request):
+        roles = RoleTypes.objects.all()
+        serializer = AddRoleSerializer(roles, many=True)
+        return Response(serializer.data)
+
+class AddDepartmentView(APIView):
+    permission_classes = (AllowAny,)
+    def post(self, request):
+        if request.data:
+            serializer = AddDepartmentSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({'message':'department Added Successfully'}, status=200)
+            return Response(serializer.errors)
+        return JsonResponse({'message':'Bad Request'}, status=400)
+
+    def get(self,request):
+        department = Department.objects.all()
+        serializer = AddDepartmentSerializer(department, many=True)
+        return Response(serializer.data)
+
+
 ########----Add new employee to the Organization-----########
 class AddEmployeeView(APIView):
     def post(self, request):
