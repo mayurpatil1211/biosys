@@ -33,40 +33,46 @@ from django.template.loader import render_to_string
 from django.conf import settings
 # from weasyprint import HTML
 
+try:
+    scheduler = BackgroundScheduler()
+    scheduler.add_jobstore(DjangoJobStore(), "default")
 
-scheduler = BackgroundScheduler()
-scheduler.add_jobstore(DjangoJobStore(), "default")
+    @register_job(scheduler, "interval", seconds=10, replace_existing=True)
+    def test_job():
+        today = datetime.strftime(datetime.now(), "%Y-%m-%d")
+        today=(datetime.strptime(today, '%Y-%m-%d')).date()
+        tommorrow = today+timedelta(days=1)
 
-@register_job(scheduler, "interval", seconds=10, replace_existing=True)
-def test_job():
-    today = datetime.strftime(datetime.now(), "%Y-%m-%d")
-    today=(datetime.strptime(today, '%Y-%m-%d')).date()
-    tommorrow = today+timedelta(days=1)
-    try:
-        roomStatus = RoomStatus.objects.filter(status=True).all()
-    except(KeyError, AttributeError, Exception)as e:
-        roomStatus =[]
-    if roomStatus:
-        for room in roomStatus:
-            if room.from_date<=today and today<=room.to_date:
-                try:
-                    room.room.status = room.room_status
-                    room.room.save()
-                except(KeyError, AttributeError, Exception)as e:
-                    pass
-            else:
-                try:
-                    room.room.status= Status.Available
-                    room.room.save()
-                except(KeyError, AttributeError, Exception)as e:
-                    pass
-    else:
-        pass
+        try:
+            roomStatus = RoomStatus.objects.filter(status=True).all()
+
+        except(KeyError, AttributeError, Exception)as e:
+            roomStatus =[]
+        if roomStatus:
+            print('++++++++++++++++++++++++++++Executing')
+            for room in roomStatus:
+                if room.from_date<=today and today<=room.to_date:
+                    try:
+                        room.room.status = room.room_status
+                        room.room.save()
+                    except(KeyError, AttributeError, Exception)as e:
+                        pass
+                else:
+                    try:
+                        room.room.status= Status.Available
+                        room.room.save()
+                    except(KeyError, AttributeError, Exception)as e:
+                        pass
+        else:
+            print('++++++++++++++++++++++++++++Executing')
+            pass
 
 
-register_events(scheduler)
-scheduler.start()
-print("Scheduler started!")
+    register_events(scheduler)
+    scheduler.start()
+    print("Scheduler started!")
+except(TypeError)as e:
+    pass
 
 
 
@@ -381,6 +387,7 @@ class CheckInAndBookView(APIView):
                             serializers.save()
                             room.status = Status.Occupied
                             room.save()
+                            print(room.status)
                             return JsonResponse({'message':'Checked In Successfully'}, status=200)
                         return Response(serializers.errors)
                     return JsonResponse({'message':'Sorry, Room is '+ str(room.status) +' at this moment'}, status=400)

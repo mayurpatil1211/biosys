@@ -1,4 +1,4 @@
 env/*
 *.pyc
-web_service/migrations/*
+./web_service/migrations/*
 room_booking/migrations/*

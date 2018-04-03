@@ -1545,10 +1545,12 @@ class SalaryView(APIView):
 
 
 ##############-------------------------Employee Document----------------------###################
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 class EmployeeDocumentView(APIView):
-    parser_classes = (MultiPartParser, )
+    permission_classes = (AllowAny,)
+    # parser_classes = (MultiPartParser,)
     def post(self, request):
+        print('request.data', request.data)
         if request.data:
             serializer = EmployeeDocumentSerializer(data=request.data)
             if serializer.is_valid():
