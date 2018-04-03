@@ -6,13 +6,16 @@ import django.db.models.deletion
 
 def load_departments(apps, schema_editor):
     Department = apps.get_model("web_service", "Department")
-    department_obj = Department(id=1, name='Admin')
+    department_obj = Department(id=1, name='Account')
     department_obj.save()
 
-    department_obj = Department(id=2, name='Manager')
+    department_obj = Department(id=2, name='Sales')
     department_obj.save()
     
-    department_obj = Department(id=3, name='Employee')
+    department_obj = Department(id=3, name='HR')
+    department_obj.save()
+
+    department_obj = Department(id=3, name='Reserch')
     department_obj.save()
 
 
