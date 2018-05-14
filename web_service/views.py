@@ -82,7 +82,7 @@ def register(request):
 @permission_classes((AllowAny,))
 def forgot_password(request):
     user = User.objects.filter(username=request.data['username']).first()
-    print(user)
+    
     if user:
         send_mail('subject', 'body of the message', 'mayur.patil1211@gmail.com', ['mayurbppatil@gmail.com'])
         return JsonResponse({'message':'User Exists'}, status=200)
@@ -213,7 +213,7 @@ class AddEmployeeView(APIView):
         users = User.objects.filter(id__in = user_ids).filter(employee_other_details__approved=True)
         # Herd.objects.annotate(animalCount=Count('animals')).filter(Q(animals__species_type='Cow')|Q(animalCount=0))
         serializer = EmployeeListSerializer(users, many=True)
-        print(serializer)
+        
         return Response(serializer.data)
         # return JsonResponse({'message':'User Updated Successfully'}, status=200) 
 
@@ -283,7 +283,7 @@ class ActivityAddList(APIView):
             serializer.save()
             return JsonResponse({"message" : "Activity Created Successfully"}, status = 201)
         else:
-            print (serializer.errors)
+            
             return JsonResponse({"message": "bad string"}, status=400)
 
     def put(self, request):
@@ -295,14 +295,13 @@ class ActivityAddList(APIView):
                 serializer.save()
                 return JsonResponse({"message": 'Success'}, status=200)
             else:
-                print (serializer.errors)
                 return JsonResponse({"message": "bad string"}, status=400)
         except(ObjectDoesNotExist)as e:
             return JsonResponse({'message':'Requested Activity Does Not Exist'}, status=400)
 
     def get(self, request):
         if request.user.user_role.role_type == 'Employee':
-            print(request.user)
+            
             activities = Activity.objects.filter(created_by=request.user)
             serializer = ActivityFarmerMobSerializer(activities, many=True)
             return JsonResponse({'activities': serializer.data},
@@ -332,7 +331,7 @@ class ActivityAddList(APIView):
 
 class DeleteActivity(APIView):
     def get(self, request, activity_id):
-        print('Individual Activty')
+        
         activity = Activity.objects.filter(id=activity_id).first()
         if activity:
             serializer = ActivitySerializer(activity, many=False)
@@ -352,10 +351,10 @@ class ActivityGetList(APIView):
     def get(self, request, year, month, day):
         
         date_new = year+'-'+month+'-'+day
-        print(date_new)
+        
         if request.user.user_role.role_type == 'Employee':
             activities = Activity.objects.filter(created_by=request.user.id, activity_date__month=month, activity_date__year=year, activity_date__day=day)
-            print('activities')
+            
             serializer = ActivityFarmerMobSerializer(activities, many=True)
             return JsonResponse({'activities': serializer.data},
                                 status=200)
@@ -393,7 +392,7 @@ class ExpenseAddList(APIView):
             serializer.save()
             return JsonResponse({"message": "Expense Added Successfully"}, status=200)
         else:
-            print (serializer.errors)
+            
             return JsonResponse({"message": "bad string"}, status=400)
 
     def put(self, request):
@@ -404,7 +403,7 @@ class ExpenseAddList(APIView):
                 serializer.save()
                 return JsonResponse({"message": "success"}, status=200)
             else:
-                print(serializer.errors)
+                
                 return JsonResponse({"message": "bad string"}, status=400)
         except(ObjectDoesNotExist)as e:
             return JsonResponse({'message':'Requested expense Does Not Exist'}, status=400)
@@ -436,7 +435,7 @@ class ManagerExpenseView(APIView):
             user_ids = [i.user_id for i in user_list]
             applied_expense = Expense.objects.filter(created_by__in=user_ids)
             appliedExpenseUsers = [i.created_by.id for i in applied_expense]
-            print(appliedExpenseUsers[0])
+            
             expense = User.objects.filter(id__in = appliedExpenseUsers)
             serializer = EmployeesExpenseForManager(expense, many=True)
             return Response(serializer.data)
@@ -546,11 +545,11 @@ class AppliedLeaveViewAPI(APIView):
 
     def put(self, request, format=None):
         if request.data:
-            print(request.data['id'])
+            
             applied_leave = AppliedLeave.objects.filter(id=request.data['id']).first()
             if applied_leave:
                 serializer = AppliedLeaveUpdate(applied_leave, data=request.data)
-                print(serializer)
+                
                 if serializer.is_valid():
                     serializer.save()
                     return JsonResponse({'message': 'Updated Successfully'}, status=200)
@@ -613,7 +612,7 @@ class AppliedLeaveUserHistory(APIView):
 @api_view(['GET'])
 def leave_info_user(id, *args, **kwargs):
     user = User.objects.filter(id=id).first()
-    # print(user)
+    
     return JsonResponse({'message': 'Leave assigned successfully'}, status=200)
 
 
@@ -625,7 +624,6 @@ class EmployeeBalanceLeave(APIView):
 		user = User.objects.filter(id=user_id).first()
 		if user:
 			leaves = Leaves.objects.filter(user=user).first()
-			# print(leaves.balance_sick_leave)
 			if leaves:
 				serializer = BalanceLeaveSerializer(leaves)
 				return Response(serializer.data)
@@ -640,7 +638,7 @@ class ApplyLeave(APIView):
         if request.data:
             user = User.objects.filter(id=request.data['user']).first()
             if user and user.user_assigned_leaves.filter(user=user).first():
-                print(user.user_assigned_leaves.filter(user=user).first())
+                
                 serializer = ApplyLeaveSerializer(data=request.data)
                 if serializer.is_valid():
                     serializer.save()
@@ -677,7 +675,7 @@ def update_balance_leave(user, typeOfLeave, days):
     if col_value is not None:
 
         if leave_type == 'balance_compoff_leave':
-            print('in balance compoff')
+            
             bal = float(col_value) + float(days)
             updateLeaves = Leaves.objects.filter(user=user).update(**{leave_type: bal, 'total_compoff_leave': bal})
             message = 1
@@ -686,7 +684,7 @@ def update_balance_leave(user, typeOfLeave, days):
             if bal<0:
                 updateLeaves = Leaves.objects.filter(user=user).update(**{leave_type: 0})
                 bal = abs(bal)
-                print(bal)
+                
                 lop_add = EmployeeLop(
                     user = user,
                     count = bal
@@ -741,7 +739,7 @@ class ManagerLeaveView(APIView):
             user_ids = [i.user_id for i in user_list]
             applied_leave = AppliedLeave.objects.filter(appliedBy__in=user_ids)
             appliedLeaveUsers = [i.user_id for i in applied_leave]
-            print(appliedLeaveUsers)
+            
             leaves = User.objects.filter(id__in=appliedLeaveUsers)
             serializer = EmployeesLeaveForManager(leaves, many=True)
             return Response(serializer.data)
@@ -912,7 +910,7 @@ class FarmerDetailsIndividual(APIView):
 class FarmerDetailsUser(APIView):
     def get(self, request, user_id):
         farmer_obj = FarmerDetails.objects.filter(created_by=user_id).all()
-        # print(farmer_obj[0].activity)
+        
         if farmer_obj:
             serializer = FarmerDetailsSerializer(farmer_obj, many=True)
             if serializer:
@@ -926,7 +924,7 @@ class FarmerListViewBasedOnUserDate(APIView):
         date_new = year+'-'+month+'-'+day
         user = User.objects.filter(id=user_id).first()
         if user.user_role.role_type=='Employee':
-            # print(date_new)
+            
             # farmer = FarmerDetails.objects.filter(created_by=user_id, form_filled_on__year=year, form_filled_on__month=month, form_filled_on__day=day).all()
             farmer = FarmerDetails.objects.filter(created_by=user_id, form_filled_on = date_new).all()
             serializer = FarmerDetailsSerializer(farmer, many=True)
@@ -942,7 +940,6 @@ class FarmerListViewBasedOnUser(APIView):
     def get(Self, request, user_id):
         user = User.objects.filter(id=user_id).first()
         if user.user_role.role_type=='Employee':
-            # print(date_new)
             # farmer = FarmerDetails.objects.filter(created_by=user_id, form_filled_on__year=year, form_filled_on__month=month, form_filled_on__day=day).all()
             farmer = FarmerDetails.objects.filter(created_by=user_id).all()
             serializer = FarmerDetailsSerializer(farmer, many=True)
@@ -962,7 +959,6 @@ def upadte_farmer_details_form(request):
         
     #     if updating.is_valid():
     #         return Response(updating.data)
-    #     print(updating.errors)
     #     return JsonResponse({'message':'Something Went Wrong'})
     try:
         farmer_obj = FarmerDetails.objects.filter(id=request.data["id"]).first()
@@ -1089,7 +1085,7 @@ def upadte_farmer_details_form(request):
 def update_soil_type(farmer, soil_obj):
     if soil_obj:
         try:
-            print(soil_obj)
+            
             for s in soil_obj:
                 FarmerSoilType.objects.filter(id=s["id"], farmer=farmer).update(soil = s["soil"])
         except Exception as e:
@@ -1112,7 +1108,7 @@ class CultivationFormView(APIView):
     def post(self, request):
         if request.data:
             serializer = CultivationFormSerializer(data=request.data)
-            print(serializer)
+            
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({'message':'Cultivation form saved'}, status=200)
@@ -1130,7 +1126,7 @@ class CultivationFormView(APIView):
         cult_form = CultivationForm.objects.filter(id =request.data["id"]).first()
         if cult_form and request.data:
             serializer = CultivationFormSerializer(cult_form, data=request.data)
-            print(serializer)
+            
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({'message': 'Cultivation Form Updated'}, status=204)
@@ -1157,52 +1153,15 @@ class CultivationGetView(APIView):
 ######################------------------Form 3-----------------######################
 
 class SampleFormView(APIView):
-    # def post(self, request):
-    #     if request.data:
-    #         serializer = SampleFormSerializer(data=request.data)
-    #         print(serializer)
-    #         if serializer.is_valid():
-    #             print("saved")
-    #             serializer.save()
-    #             return JsonResponse({'message': 'Sample Form saved Successfully'}, status=200)
-    #         return JsonResponse({'message':'Bad request'}, status=400)
-    #     return JsonResponse({'message': 'Bad String'}, status=400)
     def post(self, request):
         if request.data:
             serializer = SampleFormSerializer(data=request.data)
-            print(serializer)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({'message':'Sample Form saved'}, status=200)
             return JsonResponse({'message':'Bad String'}, status=400)
         return JsonResponse({'message':'Bad Request'}, status=400)
-        # if request.data:
-        #     # print(request.data)
-        #     data = request.data
-        #     if request.data['excepted_result_date']:
-        #         expected_result_date = request.data['excepted_result_date']
-        #     else:
-        #         excepted_result_date = None
 
-        #     farmer =FarmerDetails.objects.filter(id=data['farmer']).first()
-        #     if farmer:
-        #         sample = SampleForm(
-        #                 farmer=farmer,
-        #                 previous_year=data["previous_year"],
-        #                 sample = data["sample"],
-        #                 quantity = data["quantity"],
-        #                 sample_request = data["sample_request"],
-        #                 sample_request_qauntity = data["sample_request_qauntity"],
-        #                 photo_upload= data["photo_upload"],
-        #                 excepted_result_date = data["excepted_result_date"],
-        #                 excepted_result_photo = data["excepted_result_photo"],
-        #                 excepted_result_note = data["excepted_result_note"]
-        #             )
-        #         sample.save()
-        #         return JsonResponse({'message': 'Sample Form saved Successfully'}, status=200)
-        #     else:
-        #         pass
-        # return JsonResponse({'message':'Bad request'}, status=400)
 
     def get(self, request):
         sample_form = SampleForm.objects.all()
@@ -1391,7 +1350,6 @@ class VendorCreateView(APIView):
     def post(self, request, format=None):
         if request.data:
             serializer = VendorCreate(data=request.data)
-            print('serializer',serializer)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
@@ -1470,7 +1428,6 @@ class PlacingOrders(APIView):
             # def post(self, request, format=None):
         if request.data:
             serializer = PlaceOrderSerializer(data=request.data)
-            print(serializer)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({'message': 'Order Place Successfully'}, status=200)
@@ -1480,7 +1437,6 @@ class PlacingOrders(APIView):
 
     def put(self, request, format=None):
         if request.data:
-            # print(request.data['order_items'])
             orders = Orders.objects.filter(id = request.data['id']).first()
             serializer = PlaceOrderSerializer(orders, data=request.data)
             if serializer.is_valid():
@@ -1499,13 +1455,6 @@ class HrUserView(APIView):
             users = User.objects.filter(id__in=user_ids)
             serializer = HrUserSerializer(users, many=True)
             return Response(serializer.data)
-
-        # if request.user.user_role.role_type == 'Manager':
-        #     user_list = Role.objects.filter(department=request.user.user_role.department)
-        #     user_ids = [i.user_id for i in user_list]
-        #     applied_expense = Expense.objects.filter(created_by__in=user_ids)
-        #     appliedExpenseUsers = [i.created_by.id for i in applied_expense]
-        #     print(appliedExpenseUsers[0])
 
 class SalaryView(APIView):
     def post(self, request, format=None):
@@ -1550,7 +1499,6 @@ class EmployeeDocumentView(APIView):
     permission_classes = (AllowAny,)
     # parser_classes = (MultiPartParser,)
     def post(self, request):
-        print('request.data', request.data)
         if request.data:
             serializer = EmployeeDocumentSerializer(data=request.data)
             if serializer.is_valid():
@@ -1614,11 +1562,9 @@ class HrUserListView(APIView):
 
 class HrUsersDetailsView(APIView):
     def get(self, request, user, format=None):
-        print(user)
         if request.user.user_role.department == 'HR':
             user_obj = User.objects.filter(id=user)
             serializer = HrUserDetailSerializer(user_obj)
-            print(serializer)
             return Response(serializer.data)
         return JsonResponse({'message':'Unauthorised user'}, status=401)
             
@@ -1663,7 +1609,6 @@ class SalaryView(APIView):
 class SalaryIndividual(APIView):
     def get(self, request, user):
         salary = Salary.objects.filter(user=user).first()
-        print(salary)
         if salary:
             serializer = SalarySerializer(salary)
             return Response(serializer.data)
@@ -1694,7 +1639,6 @@ class BankDetailsView(APIView):
                 return JsonResponse({'message':'Unique Id Required'}, status=400)
             bankDetails = BankDetails.objects.get(id=_id)
             serializer = BankDetailsSerializer(bankDetails, data=request.data)
-            print(serializer)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({'message':'Bank Details Updated Successfully'}, status=200)
@@ -1761,7 +1705,6 @@ def salary_request(request):
 
 def calculate_lop_f(user_id, month, year):
     employee_lop = EmployeeLop.objects.filter(user=user_id, appliedOn__month=month, appliedOn__year=year, status=True).all()
-    # print(employee_lop)
     lop = 0
     if employee_lop:
         for e in employee_lop:
@@ -1776,7 +1719,6 @@ class SalaryRequestedIndividual(APIView):
     def get(self, request, user_id):
         this_year = datetime.today()
         if datetime.today().month>3:
-            print("in gt 3")
             year = int(datetime.strftime(datetime.today(), '%Y'))
             from_date = str(year)+ '04' + '01'
             from_year_date = datetime.strptime(from_date, "%Y%m%d")
@@ -1784,11 +1726,9 @@ class SalaryRequestedIndividual(APIView):
             serializer = SalaryRequestedSerializer(salaries, many=True)
             return Response(serializer.data)
         else:
-            # print("in lt 3")
             year = int(datetime.strftime(datetime.today(), '%Y'))
             from_date = str(year-1)+ '04' + '01'
             from_year_date = datetime.strptime(from_date, "%Y%m%d")
-            print(from_year_date)
             salaries = SalaryRequest.objects.filter(user=user_id, credited=True, created_on__range=(from_year_date, this_year)).all()
             serializer = SalaryRequestedSerializer(salaries, many=True)
             return Response(serializer.data)
@@ -1830,6 +1770,8 @@ def salary_credited(request):
             return JsonResponse({'message':'Not Found, Invalid data'}, status=400)
         return JsonResponse({'message':'unique id and user id is neccessory'}, status=400)
     return JsonResponse({'message':'Bad Request'}, status=400)
+
+
 ###########-----Appraissal------###########
 class AppraisalsView(APIView):
     def post(self, request):
@@ -1892,9 +1834,6 @@ class EmployeeAppraisalsYear(APIView):
 @api_view(['GET'])
 @permission_classes((AllowAny,))
 def generate_payslip(request, user, year, month):
-    # user = request.data.get('user', None)
-    # month = request.data.get('month', None)
-    # year = request.data.get('year', None)
     if user and month and year:
         template = get_template('payslip.html')
         salary_info = SalaryRequest.objects.filter(user=user, salary_year=year, salary_month=month).first()

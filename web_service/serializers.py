@@ -671,9 +671,7 @@ class PlaceOrderSerializer(serializers.ModelSerializer):
         return order1
 
     def update(self, instance, validated_data):
-        # print(validated_data)
         # order_item = validated_data.pop('order_items')
-        # print(validated_data.get('shipping_address'))
         instance.shipping_address = validated_data.get('shipping_address', instance.shipping_address)
         instance.discount_amount = validated_data.get('discount_amount', instance.discount_amount)
         instance.comfirmed = validated_data.get('comfirmed', instance.comfirmed)
@@ -682,11 +680,9 @@ class PlaceOrderSerializer(serializers.ModelSerializer):
 
         # order_items = validated_data.get('order_items')
         order_items = validated_data['order_items']
-        print(validated_data)
 
         if order_items:
             for item in order_items:
-                # print(item)
                 item_id = item.get('id', None)
                 
                 if item_id:
@@ -702,7 +698,6 @@ class PlaceOrderSerializer(serializers.ModelSerializer):
                     orders_item.save()
                 else:
                     OrderedItems.objects.create(order=instance, **item)
-                    # print("maddy")
         return instance
 
 

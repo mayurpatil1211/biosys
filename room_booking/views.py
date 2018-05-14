@@ -49,7 +49,6 @@ try:
         except(KeyError, AttributeError, Exception)as e:
             roomStatus =[]
         if roomStatus:
-            print('++++++++++++++++++++++++++++Executing')
             for room in roomStatus:
                 if room.from_date<=today and today<=room.to_date:
                     try:
@@ -64,13 +63,9 @@ try:
                     except(KeyError, AttributeError, Exception)as e:
                         pass
         else:
-            print('++++++++++++++++++++++++++++Executing')
             pass
-
-
     register_events(scheduler)
     scheduler.start()
-    print("Scheduler started!")
 except(TypeError)as e:
     pass
 
@@ -132,7 +127,7 @@ class RoomViewBasedDate(APIView):
         rooms_status = []
         for roo in rooms:
             room = {}
-            # print(room)
+            #  (room)
             room['id'] = roo.id
             room['room_number'] = roo.room_number
             room['floor'] = roo.floor
@@ -148,7 +143,6 @@ class RoomViewBasedDate(APIView):
                         booking['room_status'] = str(book.room_status)
                         booking['booking_item'] = {}
                         item = Booking.objects.filter(id=book.booking.id).first()
-                        print(book.booking.id)
                         if item:
                             item_obj = {}
                             booking['booking_item']['id'] = item.id
@@ -344,7 +338,6 @@ class BookingView(APIView):
 
     def get(self, request, format=None):
         bookings = Booking.objects.filter(status=True).all()
-        print(bookings)
         serializers = BookingGetSerializer(bookings, many=True)
         return Response(serializers.data)
 
@@ -387,7 +380,6 @@ class CheckInAndBookView(APIView):
                             serializers.save()
                             room.status = Status.Occupied
                             room.save()
-                            print(room.status)
                             return JsonResponse({'message':'Checked In Successfully'}, status=200)
                         return Response(serializers.errors)
                     return JsonResponse({'message':'Sorry, Room is '+ str(room.status) +' at this moment'}, status=400)
@@ -397,7 +389,6 @@ class CheckInAndBookView(APIView):
 
     def get(self, request, format=None):
         bookings = Booking.objects.filter(status=True, checked_in=True).all()
-        print(bookings)
         serializers = BookingGetSerializer(bookings, many=True)
         return Response(serializers.data)
 
@@ -643,7 +634,6 @@ def bill_on_checkout(booking_id):
             number_of_days = booking.number_of_days
             )
         add_bill.save()
-        print('bill added')
         return 1
     return 0
 
@@ -652,7 +642,6 @@ def calculate_additional_bill(booking_id):
     total = 0
     for bill in add_bill:
         total += bill.total
-    print(total)
     return total
 
 
@@ -686,9 +675,7 @@ class BookingHistoryFilter(APIView):
                 date = None
 
             if name:
-                print(name)
                 booking = Booking.objects.filter(status=False, customer_name__icontains=name).all()
-                print(booking)
                 serializers = BookingInfoSerializer(booking, many=True)
                 result.extend(serializers.data)
 

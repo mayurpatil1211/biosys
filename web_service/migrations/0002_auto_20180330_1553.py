@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-    	migrations.RunPython(load_roletypes,delete_roletypes),
+    	migrations.RunPython(load_roletypes, delete_roletypes),
     ]
 
 

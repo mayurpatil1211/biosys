@@ -5,7 +5,7 @@ from . import views
 urlpatterns=[
 	url(r'^register/', views.register, name='register'),
 	url(r'userLogin', views.login, name='userlogin'),
-	url(r'^logout/$', views.logout, name='logout'),
+	url(r'^logout', views.logout, name='logout'), # domain:8000/api/logout
 	
 	url(r'^attendance/$', views.AttendanceCreate.as_view()),
 
